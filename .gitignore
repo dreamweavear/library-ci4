@@ -1,0 +1,15 @@
+.env
+/vendor/
+/node_modules/
+/writable/
+
+# Logs & temp files
+*.log
+*.tmp
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+/public/uploads/

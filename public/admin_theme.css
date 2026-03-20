@@ -1,0 +1,74 @@
+/* Brilient Brains Library - Admin theme (blue/sky-blue, Windows-like gradient) */
+
+:root{
+  --bg:#f7fbff;
+  --text:#0b1220;
+  --muted:#4b5563;
+  --brand:#0d6efd;
+  --border:rgba(13,110,253,.18);
+}
+
+body{
+  background: radial-gradient(1000px 420px at 15% 0%, rgba(56,189,248,.25), transparent 55%),
+              radial-gradient(900px 420px at 90% 0%, rgba(13,110,253,.18), transparent 55%),
+              #f7fbff;
+  color:var(--text);
+}
+
+.bb-sidebar{
+  background: linear-gradient(180deg, rgba(13,110,253,.10), rgba(56,189,248,.08));
+  border-right: 1px solid var(--border);
+}
+
+.bb-sidebar__user{
+  background: rgba(255,255,255,.70);
+}
+
+.bb-topbar{
+  background: linear-gradient(135deg, rgba(13,110,253,.92), rgba(56,189,248,.86));
+  border-bottom: 1px solid rgba(255,255,255,.25);
+}
+
+.bb-topbar__title,
+.bb-topbar__actions a{
+  color:#fff !important;
+}
+
+.panel,
+.card,
+.seat{
+  background: rgba(255,255,255,.78);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.nav a,
+.bb-menu__item{
+  color: var(--muted);
+}
+
+.bb-menu__item.is-active{
+  color: var(--text);
+  border-color: rgba(13,110,253,.35);
+  background: linear-gradient(180deg, rgba(13,110,253,.12), rgba(56,189,248,.08));
+}
+
+.btn{
+  border-color: rgba(13,110,253,.25);
+  background: linear-gradient(135deg, rgba(13,110,253,.12), rgba(56,189,248,.10));
+  color: var(--text);
+}
+
+.btn:hover{
+  border-color: rgba(13,110,253,.45);
+}
+
+.btn--ghost{
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.link{ color: var(--brand); }
+.muted{ color: var(--muted); }
+
