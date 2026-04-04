@@ -11,52 +11,67 @@
     </div>
 </div>
 
+<!-- ── Quick Actions ── -->
 <div class="bb-quick">
     <a href="<?= site_url('/admin/students/new') ?>">
-        <div class="card">
+        <div class="card adm-c-blue">
+            <div class="adm-quick-icon"><i class="bi bi-person-plus-fill"></i></div>
             <div class="card__label">Admission</div>
             <div class="bb-quick__title">Add Student</div>
             <div class="bb-quick__desc">Create student entry and details.</div>
         </div>
     </a>
     <a href="<?= site_url('/admin/enrollments/new') ?>">
-        <div class="card">
+        <div class="card adm-c-green">
+            <div class="adm-quick-icon"><i class="bi bi-person-workspace"></i></div>
             <div class="card__label">Seat Allotment</div>
             <div class="bb-quick__title">Allot Seat</div>
             <div class="bb-quick__desc">Assign seat + plan (Full/Half day).</div>
         </div>
     </a>
     <a href="<?= site_url('/admin/fees') ?>">
-        <div class="card">
+        <div class="card adm-c-amber">
+            <div class="adm-quick-icon"><i class="bi bi-cash-stack"></i></div>
             <div class="card__label">Fees</div>
             <div class="bb-quick__title">Fees Collection</div>
             <div class="bb-quick__desc">Track collections and pending fees.</div>
         </div>
     </a>
     <a href="<?= site_url('/admin/student-accounts') ?>">
-        <div class="card">
+        <div class="card adm-c-purple">
+            <div class="adm-quick-icon"><i class="bi bi-key-fill"></i></div>
             <div class="card__label">Student Login</div>
             <div class="bb-quick__title">Create IDs / Reset</div>
-            <div class="bb-quick__desc">Manage username & password for students.</div>
+            <div class="bb-quick__desc">Manage username &amp; password for students.</div>
         </div>
     </a>
 </div>
 
-<div class="cards">
-    <div class="card">
+<!-- ── Stats ── -->
+<div class="cards" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card adm-c-blue">
+        <div class="adm-stat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
         <div class="card__label">Total Seats</div>
         <div class="card__value"><?= esc($totalSeats) ?></div>
     </div>
-    <div class="card">
+    <div class="card adm-c-green">
+        <div class="adm-stat-icon"><i class="bi bi-sun-fill"></i></div>
         <div class="card__label">Full Day (Active)</div>
         <div class="card__value"><?= esc($fullDayCount) ?></div>
     </div>
-    <div class="card">
-        <div class="card__label">Half Day (AM / PM)</div>
-        <div class="card__value"><?= esc($amCount) ?> / <?= esc($pmCount) ?></div>
+    <div class="card adm-c-amber">
+        <div class="adm-stat-icon"><i class="bi bi-brightness-high-fill"></i></div>
+        <div class="card__label">Half Day AM</div>
+        <div class="card__value"><?= esc($amCount) ?></div>
+    </div>
+    <div class="card adm-c-purple">
+        <div class="adm-stat-icon"><i class="bi bi-moon-fill"></i></div>
+        <div class="card__label">Half Day PM</div>
+        <div class="card__value"><?= esc($pmCount) ?></div>
     </div>
 </div>
 
+<!-- ── Detail Panels ── -->
 <div class="grid2">
     <section class="panel">
         <h2>Availability</h2>
@@ -110,7 +125,7 @@
     </section>
 
     <section class="panel">
-        <h2>Fees & Timings</h2>
+        <h2>Fees &amp; Timings</h2>
         <div class="muted small">Students bring their own books; library provides environment, cabin, WiFi, water, AC, etc.</div>
 
         <h3>Fees (INR)</h3>

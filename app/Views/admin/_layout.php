@@ -4,6 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($title ?? 'Brilient Brains Library · Admin') ?></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?= base_url('assets/admin.css') ?>">
     <link rel="stylesheet" href="<?= base_url('adminlte.css') ?>">
     <link rel="stylesheet" href="<?= base_url('admin_theme.css') ?>">
@@ -37,7 +42,7 @@
     <aside class="bb-sidebar">
         <div class="bb-sidebar__brand">
             <a href="<?= site_url('/admin') ?>">Brilient Brains Library</a>
-            <div class="muted small">Admin Dashboard</div>
+            <div class="muted small">Admin Panel</div>
         </div>
 
         <div class="bb-sidebar__user">
@@ -49,16 +54,16 @@
         </div>
 
         <nav class="bb-menu">
-            <a class="bb-menu__item <?= esc($isActiveExact('admin')) ?>" href="<?= site_url('/admin') ?>">Dashboard</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/seats')) ?>" href="<?= site_url('/admin/seats') ?>">Seats</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/enrollments')) ?>" href="<?= site_url('/admin/enrollments') ?>">Seat Allotment</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/students')) ?>" href="<?= site_url('/admin/students') ?>">Admissions (Students)</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/fees')) ?>" href="<?= site_url('/admin/fees') ?>">Fees Collection</a>
+            <a class="bb-menu__item <?= esc($isActiveExact('admin')) ?>" href="<?= site_url('/admin') ?>"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/seats')) ?>" href="<?= site_url('/admin/seats') ?>"><i class="bi bi-grid-3x3-gap-fill"></i>Seats</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/enrollments')) ?>" href="<?= site_url('/admin/enrollments') ?>"><i class="bi bi-person-workspace"></i>Seat Allotment</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/students')) ?>" href="<?= site_url('/admin/students') ?>"><i class="bi bi-person-plus-fill"></i>Admissions</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/fees')) ?>" href="<?= site_url('/admin/fees') ?>"><i class="bi bi-cash-stack"></i>Fees Collection</a>
             <div class="bb-menu__hr"></div>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/student-accounts')) ?>" href="<?= site_url('/admin/student-accounts') ?>">Student Login IDs</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/users')) ?>" href="<?= site_url('/admin/users') ?>">Admin Users</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/student-accounts')) ?>" href="<?= site_url('/admin/student-accounts') ?>"><i class="bi bi-key-fill"></i>Student Login IDs</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/users')) ?>" href="<?= site_url('/admin/users') ?>"><i class="bi bi-shield-person-fill"></i>Admin Users</a>
             <div class="bb-menu__hr"></div>
-            <a class="bb-menu__item" href="<?= site_url('/admin/logout') ?>">Logout</a>
+            <a class="bb-menu__item bb-menu__item--logout" href="<?= site_url('/admin/logout') ?>"><i class="bi bi-box-arrow-right"></i>Logout</a>
         </nav>
 
         <div class="bb-sidebar__footer muted small">
@@ -88,5 +93,7 @@
         </main>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
