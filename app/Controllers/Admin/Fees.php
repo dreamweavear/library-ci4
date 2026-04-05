@@ -48,24 +48,26 @@ class Fees extends BaseController
 
             if ($this->request->getMethod(true) === 'POST') {
                 $rules = [
-                    'student_id' => 'required|is_natural_no_zero',
-                    'type' => 'required|in_list[MONTHLY,ADMISSION]',
-                    'for_month' => 'permit_empty|max_length[7]',
-                    'amount' => 'required|is_natural_no_zero',
-                    'paid_on' => 'required|valid_date[Y-m-d]',
-                    'notes' => 'permit_empty|max_length[255]',
+                    'student_id'     => 'required|is_natural_no_zero',
+                    'type'           => 'required|in_list[MONTHLY,ADMISSION]',
+                    'for_month'      => 'permit_empty|max_length[7]',
+                    'amount'         => 'required|is_natural_no_zero',
+                    'paid_on'        => 'required|valid_date[Y-m-d]',
+                    'notes'          => 'permit_empty|max_length[255]',
+                    'receipt_number' => 'permit_empty|max_length[50]',
                 ];
 
                 if (! $this->validate($rules)) {
                     return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
                 }
 
-                $studentId = (int) $this->request->getPost('student_id');
-                $type = strtoupper(trim((string) $this->request->getPost('type')));
-                $forMonth = trim((string) $this->request->getPost('for_month')) ?: null;
-                $amount = (int) $this->request->getPost('amount');
-                $paidOn = (string) $this->request->getPost('paid_on');
-                $notes = trim((string) $this->request->getPost('notes')) ?: null;
+                $studentId     = (int) $this->request->getPost('student_id');
+                $type          = strtoupper(trim((string) $this->request->getPost('type')));
+                $forMonth      = trim((string) $this->request->getPost('for_month')) ?: null;
+                $amount        = (int) $this->request->getPost('amount');
+                $paidOn        = (string) $this->request->getPost('paid_on');
+                $notes         = trim((string) $this->request->getPost('notes')) ?: null;
+                $receiptNumber = trim((string) $this->request->getPost('receipt_number')) ?: null;
 
                 $student = $studentModel->find($studentId);
                 if (! $student) {
@@ -104,25 +106,26 @@ class Fees extends BaseController
                 }
 
                 $paymentId = $paymentModel->insert([
-                    'student_id' => $studentId,
-                    'enrollment_id' => $enrollmentId,
-                    'type' => $type,
-                    'for_month' => $forMonth,
-                    'amount' => $amount,
-                    'paid_on' => $paidOn,
-                    'receipt_no' => $receipt,
-                    'notes' => $notes,
+                    'student_id'     => $studentId,
+                    'enrollment_id'  => $enrollmentId,
+                    'type'           => $type,
+                    'for_month'      => $forMonth,
+                    'amount'         => $amount,
+                    'paid_on'        => $paidOn,
+                    'receipt_no'     => $receipt,
+                    'receipt_number' => $receiptNumber,
+                    'notes'          => $notes,
                 ]);
 
                 return redirect()->to(site_url('admin/fees/receipt/' . (int) $paymentId))->with('success', 'Fee receipt generated.');
             }
 
             return view('admin/fees/collect', [
-                'title' => 'Collect Fee',
-                'students' => $students,
-                'defaultMonth' => date('Y-m'),
-                'defaultPaidOn' => date('Y-m-d'),
-                'errors' => session()->getFlashdata('errors') ?? [],
+                'title'          => 'Collect Fee',
+                'students'       => $students,
+                'defaultMonth'   => date('Y-m'),
+                'defaultPaidOn'  => date('Y-m-d'),
+                'errors'         => session()->getFlashdata('errors') ?? [],
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);
@@ -197,8 +200,10 @@ class Fees extends BaseController
         try {
             $paymentModel = new PaymentModel();
             $row = $paymentModel
-                ->select('payments.*, students.full_name, students.phone, students.admission_date')
+                ->select('payments.*, students.full_name, students.phone, students.admission_date, seats.seat_no, seats.floor')
                 ->join('students', 'students.id = payments.student_id')
+                ->join('enrollments', 'enrollments.id = payments.enrollment_id', 'left')
+                ->join('seats', 'seats.id = enrollments.seat_id', 'left')
                 ->where('payments.id', $id)
                 ->first();
 

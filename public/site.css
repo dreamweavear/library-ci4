@@ -11,9 +11,15 @@
     --bb-radius:  12px;
 }
 
+/* ── Base font scale — set on html so Bootstrap rem units scale too ── */
+html {
+    font-size: 17px;
+}
+
 /* ── Base ── */
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1rem;
     background: var(--bb-bg);
     color: var(--bb-text);
 }
@@ -32,7 +38,7 @@ main.flex-grow-1 { flex: 1; }
     background: var(--bb-primary);
     box-shadow: 0 1px 3px rgba(0,0,0,.12);
 }
-.bb-navbar .nav-link         { opacity: .88; }
+.bb-navbar .nav-link         { opacity: .88; font-size: 1rem; }
 .bb-navbar .nav-link:hover   { opacity: 1; }
 .bb-navbar .nav-link.active  { font-weight: 600; opacity: 1; }
 

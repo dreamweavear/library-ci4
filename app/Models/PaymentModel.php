@@ -19,6 +19,7 @@ class PaymentModel extends Model
         'amount',
         'paid_on',
         'receipt_no',
+        'receipt_number',
         'notes',
     ];
 

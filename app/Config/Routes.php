@@ -45,9 +45,20 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->get('students', 'Admin\Students::index');
     $routes->get('students/new', 'Admin\Students::new');
     $routes->post('students', 'Admin\Students::create');
+    $routes->get('students/from-alumni/(:num)', 'Admin\Students::fromAlumni/$1');
     $routes->get('students/(:num)', 'Admin\Students::show/$1');
     $routes->get('students/(:num)/edit', 'Admin\Students::edit/$1');
     $routes->post('students/(:num)/update', 'Admin\Students::update/$1');
+    $routes->post('students/(:num)/status', 'Admin\Students::changeStatus/$1');
+
+    // Alumni
+    $routes->get('alumni', 'Admin\LibraryAlumni::index');
+    $routes->match(['GET', 'POST'], 'alumni/import', 'Admin\LibraryAlumni::importCsv');
+    $routes->post('alumni/import/store', 'Admin\LibraryAlumni::importStore');
+    $routes->get('alumni/export', 'Admin\LibraryAlumni::exportCsv');
+    $routes->post('alumni/(:num)/readmit', 'Admin\LibraryAlumni::readmit/$1');
+    $routes->get('alumni/(:num)/edit', 'Admin\LibraryAlumni::edit/$1');
+    $routes->post('alumni/(:num)/update', 'Admin\LibraryAlumni::update/$1');
 
     $routes->get('enrollments', 'Admin\Enrollments::index');
     $routes->get('enrollments/new', 'Admin\Enrollments::new');
@@ -67,6 +78,10 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->match(['GET', 'POST'], 'fees/collect', 'Admin\Fees::collect');
     $routes->get('fees/pending', 'Admin\Fees::pending');
     $routes->get('fees/receipt/(:num)', 'Admin\Fees::receipt/$1');
+
+    // ID Cards
+    $routes->get('idcard/print/(:num)', 'Admin\IdCard::print/$1');
+    $routes->post('idcard/bulk', 'Admin\IdCard::bulk');
 
     // Existing pages route (kept).
     $routes->get('pages', 'Admin\Pages::index');

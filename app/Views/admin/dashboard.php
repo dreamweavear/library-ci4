@@ -47,7 +47,32 @@
     </a>
 </div>
 
-<!-- ── Stats ── -->
+<!-- ── Student Status Stats ── -->
+<div class="cards" style="grid-template-columns: repeat(3, 1fr);margin-bottom:12px;">
+    <a href="<?= site_url('/admin/students?status=active') ?>" style="text-decoration:none;">
+        <div class="card adm-c-green">
+            <div class="adm-stat-icon"><i class="bi bi-person-check-fill"></i></div>
+            <div class="card__label">Active Students</div>
+            <div class="card__value"><?= esc($activeStudents) ?></div>
+        </div>
+    </a>
+    <a href="<?= site_url('/admin/students?status=dormant') ?>" style="text-decoration:none;">
+        <div class="card adm-c-amber">
+            <div class="adm-stat-icon"><i class="bi bi-person-dash-fill"></i></div>
+            <div class="card__label">Dormant Students</div>
+            <div class="card__value"><?= esc($dormantStudents) ?></div>
+        </div>
+    </a>
+    <a href="<?= site_url('/admin/alumni') ?>" style="text-decoration:none;">
+        <div class="card adm-c-purple">
+            <div class="adm-stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="card__label">Total Alumni</div>
+            <div class="card__value"><?= esc($alumniCount) ?></div>
+        </div>
+    </a>
+</div>
+
+<!-- ── Seat Stats ── -->
 <div class="cards" style="grid-template-columns: repeat(4, 1fr);">
     <div class="card adm-c-blue">
         <div class="adm-stat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>

@@ -60,6 +60,12 @@
         </label>
 
         <label>
+            Receipt Number (manual, optional)
+            <input type="text" name="receipt_number" value="<?= esc(old('receipt_number', '')) ?>" placeholder="e.g. REC-001">
+            <div class="muted small">Admin-entered receipt number for record keeping.</div>
+        </label>
+
+        <label>
             Notes (optional)
             <input type="text" name="notes" value="<?= esc(old('notes', '')) ?>" placeholder="Optional note">
         </label>
@@ -71,4 +77,3 @@
 </div>
 
 <?= $this->endSection() ?>
-

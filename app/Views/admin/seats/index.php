@@ -3,6 +3,26 @@
 
 <?php $title = 'Seats'; ?>
 
+<style>
+/* Seat colours — inline to guarantee override */
+.seat.seat--free {
+    background: #DCFCE7 !important;
+    border: 2px solid #22c55e !important;
+}
+.seat.seat--occupied {
+    background: #FFE4E4 !important;
+    border: 2px solid #ef4444 !important;
+}
+.seat.seat--free .seat__no,
+.seat.seat--free .small,
+.seat.seat--free .muted,
+.seat.seat--occupied .seat__no,
+.seat.seat--occupied .small,
+.seat.seat--occupied .muted {
+    color: #1e293b !important;
+}
+</style>
+
 <div class="pagehead">
     <h1>Seat Map (1 to 100)</h1>
     <div class="actions">

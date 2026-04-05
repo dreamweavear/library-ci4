@@ -58,6 +58,7 @@
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/seats')) ?>" href="<?= site_url('/admin/seats') ?>"><i class="bi bi-grid-3x3-gap-fill"></i>Seats</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/enrollments')) ?>" href="<?= site_url('/admin/enrollments') ?>"><i class="bi bi-person-workspace"></i>Seat Allotment</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/students')) ?>" href="<?= site_url('/admin/students') ?>"><i class="bi bi-person-plus-fill"></i>Admissions</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/alumni')) ?>" href="<?= site_url('/admin/alumni') ?>"><i class="bi bi-mortarboard-fill"></i>Alumni</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/fees')) ?>" href="<?= site_url('/admin/fees') ?>"><i class="bi bi-cash-stack"></i>Fees Collection</a>
             <div class="bb-menu__hr"></div>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/student-accounts')) ?>" href="<?= site_url('/admin/student-accounts') ?>"><i class="bi bi-key-fill"></i>Student Login IDs</a>

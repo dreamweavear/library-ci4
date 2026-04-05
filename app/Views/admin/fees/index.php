@@ -30,7 +30,8 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Receipt</th>
+                <th>System Receipt#</th>
+                <th>Manual Receipt#</th>
                 <th>Student</th>
                 <th>Type</th>
                 <th>Month</th>
@@ -44,6 +45,7 @@
                 <tr>
                     <td><?= esc($r['id']) ?></td>
                     <td><?= esc($r['receipt_no']) ?></td>
+                    <td><?= esc($r['receipt_number'] ?? '-') ?></td>
                     <td><?= esc($r['full_name']) ?><?= ! empty($r['phone']) ? ' (' . esc($r['phone']) . ')' : '' ?></td>
                     <td><?= esc($r['type']) ?></td>
                     <td><?= esc($r['for_month'] ?? '-') ?></td>

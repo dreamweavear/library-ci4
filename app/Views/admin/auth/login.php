@@ -24,10 +24,15 @@
 
                     <div>
                         <label class="form-label" for="password">Password</label>
-                        <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="••••••••" required>
-                        <?php if (isset($errors['password'])): ?>
-                            <div class="invalid-feedback"><?= esc($errors['password']) ?></div>
-                        <?php endif; ?>
+                        <div class="input-group">
+                            <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="••••••••" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPassword()" tabindex="-1" aria-label="Toggle password visibility">
+                                <i class="bi bi-eye" id="adminEyeIcon"></i>
+                            </button>
+                            <?php if (isset($errors['password'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['password']) ?></div>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <button class="btn btn-bb btn-lg" type="submit">Login</button>
@@ -40,4 +45,18 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleAdminPassword() {
+    const pwd  = document.getElementById('password');
+    const icon = document.getElementById('adminEyeIcon');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        pwd.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+</script>
 <?= $this->endSection() ?>

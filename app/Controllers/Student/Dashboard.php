@@ -4,6 +4,7 @@ namespace App\Controllers\Student;
 
 use App\Controllers\BaseController;
 use App\Models\EnrollmentModel;
+use App\Models\PaymentModel;
 use App\Models\SeatModel;
 use App\Models\StudentModel;
 
@@ -29,10 +30,17 @@ class Dashboard extends BaseController
             ->where('enrollments.status', 'ACTIVE')
             ->first();
 
+        $paymentModel = new PaymentModel();
+        $payments = $paymentModel
+            ->where('student_id', $studentId)
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
         return view('student/dashboard', [
-            'title' => 'Student Dashboard · Brilient Brains Library',
-            'student' => $student,
-            'active' => $active,
+            'title'    => 'Student Dashboard · Brilient Brains Library',
+            'student'  => $student,
+            'active'   => $active,
+            'payments' => $payments,
         ]);
     }
 }

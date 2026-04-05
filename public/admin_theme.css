@@ -11,17 +11,21 @@
     --radius:   12px;
 }
 
-/* ── Reset dark theme from admin.css ── */
+/* ── Base font scale — set on html so Bootstrap rem units scale too ── */
+html {
+    font-size: 18px !important;
+}
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1rem !important;
     background: var(--bg) !important;
     color: var(--text) !important;
 }
 
 a { color: inherit; }
-h1 { color: var(--text); }
-h2 { color: var(--brand); }
-h3 { color: var(--text); font-size: 13px; }
+h1 { color: var(--text); font-size: 1.75rem; }
+h2 { color: var(--brand); font-size: 1.2rem; }
+h3 { color: var(--text); font-size: 1.05rem; }
 
 /* ── Layout shell ── */
 .bb-admin { display: flex; min-height: 100vh; background: var(--bg); }
@@ -46,7 +50,7 @@ h3 { color: var(--text); font-size: 13px; }
     background: none !important;
     -webkit-text-fill-color: var(--brand) !important;
 }
-.bb-sidebar__brand .muted { color: var(--muted); font-size: .75rem; }
+.bb-sidebar__brand .muted { color: var(--muted); font-size: .85rem; }
 
 /* ── User card ── */
 .bb-sidebar__user {
@@ -72,7 +76,7 @@ h3 { color: var(--text); font-size: 13px; }
     border: none !important;
     flex-shrink: 0;
 }
-.bb-user__name { font-weight: 600; color: var(--text); font-size: .875rem; }
+.bb-user__name { font-weight: 600; color: var(--text); font-size: 1rem; }
 
 /* ── Navigation menu ── */
 .bb-menu { display: flex; flex-direction: column; gap: 2px; }
@@ -86,7 +90,7 @@ h3 { color: var(--text); font-size: 13px; }
     display: flex;
     align-items: center;
     gap: 9px;
-    font-size: .875rem;
+    font-size: 1rem;
     transition: background .12s, color .12s;
 }
 .bb-menu__item i { font-size: 1rem; flex-shrink: 0; }
@@ -137,7 +141,7 @@ h3 { color: var(--text); font-size: 13px; }
 }
 .bb-topbar__title {
     color: var(--text) !important;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: 0;
 }
@@ -202,7 +206,7 @@ h3 { color: var(--text); font-size: 13px; }
 
 /* ── Page head ── */
 .pagehead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.pagehead h1 { margin: 0; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.pagehead h1 { margin: 0; font-size: 1.75rem; font-weight: 700; color: var(--text); }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ── Panels ── */
@@ -232,13 +236,13 @@ h3 { color: var(--text); font-size: 13px; }
 }
 .card__label {
     color: var(--muted) !important;
-    font-size: .72rem;
+    font-size: .82rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .05em;
 }
 .card__value {
-    font-size: 1.75rem;
+    font-size: 1.9rem;
     font-weight: 700;
     color: var(--text) !important;
     margin-top: 4px;
@@ -257,8 +261,8 @@ h3 { color: var(--text); font-size: 13px; }
 .bb-quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 16px; }
 .bb-quick a { display: block; text-decoration: none; }
 .bb-quick .card { cursor: pointer; }
-.bb-quick__title { font-weight: 600; margin-bottom: 4px; font-size: .9rem; color: var(--text); }
-.bb-quick__desc { color: var(--muted); font-size: .78rem; line-height: 1.4; }
+.bb-quick__title { font-weight: 600; margin-bottom: 4px; font-size: 1.05rem; color: var(--text); }
+.bb-quick__desc { color: var(--muted); font-size: .9rem; line-height: 1.4; }
 
 /* ── Stat icons ── */
 .adm-stat-icon {
@@ -311,8 +315,8 @@ h3 { color: var(--text); font-size: 13px; }
 
 /* ── Table ── */
 .table { width: 100%; border-collapse: collapse; }
-.table th { color: var(--muted) !important; font-size: .75rem; font-weight: 600; border-bottom: 1px solid var(--border) !important; padding: 9px 8px; }
-.table td { border-bottom: 1px solid var(--border) !important; padding: 9px 8px; color: var(--text); font-size: .875rem; }
+.table th { color: var(--muted) !important; font-size: 1rem; font-weight: 600; border-bottom: 1px solid var(--border) !important; padding: 9px 8px; }
+.table td { border-bottom: 1px solid var(--border) !important; padding: 9px 8px; color: var(--text); font-size: 1rem; }
 
 /* ── Forms ── */
 input, select, textarea {
@@ -320,23 +324,24 @@ input, select, textarea {
     border: 1px solid var(--border) !important;
     color: var(--text) !important;
     border-radius: 8px !important;
+    font-size: 1rem !important;
 }
 input:focus, select:focus, textarea:focus {
     border-color: var(--brand) !important;
     box-shadow: 0 0 0 3px rgba(37,99,235,.10) !important;
     outline: none;
 }
-label { color: var(--muted); font-size: .8rem; }
+label { color: var(--muted); font-size: 1rem; }
 
 /* ── Grid / Panels ── */
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 /* ── Misc ── */
 .muted  { color: var(--muted) !important; }
-.small  { font-size: .78rem; }
+.small  { font-size: .88rem; }
 .link   { color: var(--brand) !important; text-decoration: none; }
 .link:hover { text-decoration: underline; }
-.list   { margin: 8px 0 0 18px; line-height: 1.9; font-size: .875rem; }
+.list   { margin: 8px 0 0 18px; line-height: 1.9; font-size: 1rem; }
 
 /* ── Seat grid (Seats page) ── */
 .seat {
@@ -344,6 +349,25 @@ label { color: var(--muted); font-size: .8rem; }
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
     color: var(--text);
+}
+/* Seat map: green = free, red = occupied
+   Use div element + double class for max specificity to beat .seat !important */
+div.seat.seat--free {
+    background: #DCFCE7 !important;
+    border: 2px solid #22c55e !important;
+}
+div.seat.seat--occupied {
+    background: #FFE4E4 !important;
+    border: 2px solid #ef4444 !important;
+}
+/* Ensure text stays readable on coloured seats */
+div.seat.seat--free .seat__no,
+div.seat.seat--free .muted,
+div.seat.seat--free .small,
+div.seat.seat--occupied .seat__no,
+div.seat.seat--occupied .muted,
+div.seat.seat--occupied .small {
+    color: #1e293b !important;
 }
 
 /* ── Pills (legend) ── */

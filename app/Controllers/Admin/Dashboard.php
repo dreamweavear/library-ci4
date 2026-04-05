@@ -94,6 +94,14 @@ class Dashboard extends BaseController
 
             $library = config('Library');
 
+            // Student status counts
+            $db = \Config\Database::connect();
+            $activeStudents  = (int) $db->table('students')->where('status', 'active')->countAllResults();
+            $dormantStudents = (int) $db->table('students')->where('status', 'dormant')->countAllResults();
+            $alumniCount     = $db->tableExists('library_alumni')
+                ? (int) $db->table('library_alumni')->countAllResults()
+                : 0;
+
             return view('admin/dashboard', [
                 'totalSeats'      => $totalSeats,
                 'fullDayCount'    => $fullDayCount,
@@ -107,6 +115,9 @@ class Dashboard extends BaseController
                 'availableAmByFloor' => $availableAmByFloor,
                 'availablePmByFloor' => $availablePmByFloor,
                 'library'         => $library,
+                'activeStudents'  => $activeStudents,
+                'dormantStudents' => $dormantStudents,
+                'alumniCount'     => $alumniCount,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);
