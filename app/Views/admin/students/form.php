@@ -44,47 +44,47 @@ function fval(string $field, $student, $prefill, $default = '')
 
     <label>
         Date of Admission
-        <input type="date" name="admission_date"
+        <input type="date" name="admission_date" id="admission_date"
                value="<?= esc(fval('admission_date', $student, $prefill, date('Y-m-d'))) ?>">
     </label>
 
     <?php if (! $isEdit): ?>
         <label>
             Fees Collected (Admission)
-            <input type="number" name="admission_fee_collected" min="0" step="1" value="<?= esc(old('admission_fee_collected', '0')) ?>">
+            <input type="number" name="admission_fee_collected" id="admission_fee_collected" min="0" step="1" value="<?= esc(old('admission_fee_collected', '0')) ?>">
         </label>
     <?php endif; ?>
 
     <label>
         Full Name <span style="color:#dc2626">*</span>
-        <input type="text" name="full_name"
+        <input type="text" name="full_name" id="full_name"
                value="<?= esc(fval('full_name', $student, $prefill)) ?>" required>
     </label>
 
     <label>
         Phone (used as Login Username)
-        <input type="text" name="phone"
+        <input type="text" name="phone" id="phone"
                value="<?= esc(fval('phone', $student, $prefill)) ?>"
                placeholder="10-digit mobile number">
     </label>
 
     <label>
         Email (optional)
-        <input type="email" name="email"
+        <input type="email" name="email" id="email"
                value="<?= esc(fval('email', $student, $prefill)) ?>"
                placeholder="student@email.com">
     </label>
 
     <label>
         Aadhar Number (optional, 12 digits)
-        <input type="text" name="aadhar_number"
+        <input type="text" name="aadhar_number" id="aadhar_number"
                value="<?= esc(fval('aadhar_number', $student, $prefill)) ?>"
                maxlength="12" pattern="[0-9]{12}" inputmode="numeric" placeholder="123456789012">
     </label>
 
     <label>
         Preparing For (optional)
-        <select name="preparing_for">
+        <select name="preparing_for" id="preparing_for">
             <option value="">— Select exam —</option>
             <?php
             $examOptions = ['UPSC', 'SSC', 'Bank', 'State PCS', 'Other'];
@@ -100,24 +100,24 @@ function fval(string $field, $student, $prefill, $default = '')
 
     <label>
         Guardian Name (optional)
-        <input type="text" name="guardian_name"
+        <input type="text" name="guardian_name" id="guardian_name"
                value="<?= esc(fval('guardian_name', $student, $prefill)) ?>">
     </label>
 
     <label>
         Address (optional)
-        <textarea name="address" rows="3" placeholder="Full address..."><?= esc(fval('address', $student, $prefill)) ?></textarea>
+        <textarea name="address" id="address" rows="3" placeholder="Full address..."><?= esc(fval('address', $student, $prefill)) ?></textarea>
     </label>
 
     <label>
         Notes (optional)
-        <textarea name="notes" rows="3"><?= esc(fval('notes', $student, $prefill)) ?></textarea>
+        <textarea name="notes" id="notes" rows="3"><?= esc(fval('notes', $student, $prefill)) ?></textarea>
     </label>
 
     <?php if ($isEdit): ?>
     <label>
         Status
-        <select name="status">
+        <select name="status" id="status">
             <?php
             $currentStatus = old('status', $student['status'] ?? 'active');
             foreach (['active' => 'Active', 'dormant' => 'Dormant', 'alumni' => 'Alumni'] as $val => $lbl):
@@ -137,7 +137,7 @@ function fval(string $field, $student, $prefill, $default = '')
                 <div class="muted small" style="margin-top:4px;">Upload new photo to replace.</div>
             </div>
         <?php endif; ?>
-        <input type="file" name="photo" accept="image/*">
+        <input type="file" name="photo" id="photo" accept="image/*">
     </label>
 
     <div class="form__actions">

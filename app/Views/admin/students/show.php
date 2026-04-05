@@ -6,7 +6,11 @@
 <div class="pagehead">
     <h1><?= esc($student['full_name']) ?></h1>
     <div class="actions">
-        <a class="btn" href="<?= site_url('/admin/enrollments/new') ?>">Allot Seat</a>
+        <?php if ($active): ?>
+            <a class="btn" href="<?= site_url('/admin/enrollments/change-seat/' . $student['id']) ?>">⇄ Change Seat</a>
+        <?php else: ?>
+            <a class="btn" href="<?= site_url('/admin/enrollments/new') ?>">Allot Seat</a>
+        <?php endif; ?>
         <a class="btn btn--ghost" href="<?= site_url('/admin/students/' . $student['id'] . '/edit') ?>">Edit</a>
         <a class="btn btn--ghost" href="<?= site_url('/admin/students') ?>">Back</a>
     </div>

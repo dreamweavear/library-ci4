@@ -64,6 +64,8 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->get('enrollments/new', 'Admin\Enrollments::new');
     $routes->post('enrollments', 'Admin\Enrollments::create');
     $routes->post('enrollments/(:num)/end', 'Admin\Enrollments::end/$1');
+    $routes->get('enrollments/change-seat/(:num)', 'Admin\Enrollments::changeSeatForm/$1');
+    $routes->post('enrollments/change-seat/(:num)', 'Admin\Enrollments::changeSeat/$1');
 
     $routes->get('student-accounts', 'Admin\StudentAccounts::index');
     $routes->match(['GET', 'POST'], 'student-accounts/new', 'Admin\StudentAccounts::new');
