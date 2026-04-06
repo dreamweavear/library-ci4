@@ -90,4 +90,16 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->resource('pages', ['controller' => 'Admin\Pages']);
        // WhatsApp Test  ← YAHAN ADD KAREIN
     //$routes->get('test-wa', 'Admin\Enrollments::testWa');
+
+    // Birthday Reminder
+    $routes->get('birthday-reminder', 'Admin\BirthdayReminder::index');
+    $routes->post('birthday-reminder/send/(:num)', 'Admin\BirthdayReminder::send/$1');
+    $routes->post('birthday-reminder/send-all', 'Admin\BirthdayReminder::sendAll');
+
+    // Bulk WhatsApp
+    $routes->get('bulk-whatsapp', 'Admin\BulkWhatsApp::index');
+    $routes->post('bulk-whatsapp/send', 'Admin\BulkWhatsApp::send');
+
+    // Message Logs
+    $routes->get('message-logs', 'Admin\MessageLogs::index');
 });

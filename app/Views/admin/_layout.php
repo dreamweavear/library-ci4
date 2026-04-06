@@ -64,6 +64,11 @@
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/student-accounts')) ?>" href="<?= site_url('/admin/student-accounts') ?>"><i class="bi bi-key-fill"></i>Student Login IDs</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/users')) ?>" href="<?= site_url('/admin/users') ?>"><i class="bi bi-shield-person-fill"></i>Admin Users</a>
             <div class="bb-menu__hr"></div>
+            <div class="muted small" style="padding:6px 14px 2px;font-size:0.7rem;letter-spacing:.08em;text-transform:uppercase;">Bulk Messaging</div>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/bulk-whatsapp')) ?>" href="<?= site_url('/admin/bulk-whatsapp') ?>"><i class="bi bi-whatsapp"></i>Bulk WhatsApp</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/birthday-reminder')) ?>" href="<?= site_url('/admin/birthday-reminder') ?>"><i class="bi bi-balloon-heart-fill"></i>Birthday Reminder</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/message-logs')) ?>" href="<?= site_url('/admin/message-logs') ?>"><i class="bi bi-chat-left-text-fill"></i>Message Logs</a>
+            <div class="bb-menu__hr"></div>
             <a class="bb-menu__item bb-menu__item--logout" href="<?= site_url('/admin/logout') ?>"><i class="bi bi-box-arrow-right"></i>Logout</a>
         </nav>
 

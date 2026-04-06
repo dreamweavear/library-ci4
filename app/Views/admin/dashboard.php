@@ -96,6 +96,35 @@
     </div>
 </div>
 
+<!-- ── Communication ── -->
+<div class="muted small" style="margin:16px 0 6px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;">Communication</div>
+<div class="bb-quick" style="margin-bottom:16px;">
+    <a href="<?= site_url('/admin/bulk-whatsapp') ?>">
+        <div class="card adm-c-green">
+            <div class="adm-quick-icon"><i class="bi bi-whatsapp"></i></div>
+            <div class="card__label">Bulk WhatsApp</div>
+            <div class="bb-quick__title">Send to All</div>
+            <div class="bb-quick__desc">Blast WhatsApp messages to active students.</div>
+        </div>
+    </a>
+    <a href="<?= site_url('/admin/birthday-reminder') ?>">
+        <div class="card adm-c-amber">
+            <div class="adm-quick-icon"><i class="bi bi-balloon-heart-fill"></i></div>
+            <div class="card__label">Birthday Reminder</div>
+            <div class="bb-quick__title">Today's Birthdays</div>
+            <div class="bb-quick__desc">Send birthday wishes via WhatsApp.</div>
+        </div>
+    </a>
+    <a href="<?= site_url('/admin/message-logs') ?>">
+        <div class="card" style="background:#1e293b;color:#f8fafc;">
+            <div class="adm-quick-icon"><i class="bi bi-chat-left-text-fill"></i></div>
+            <div class="card__label" style="color:#94a3b8;">Message Logs</div>
+            <div class="bb-quick__title">Sent History</div>
+            <div class="bb-quick__desc" style="color:#94a3b8;">View all WhatsApp message logs.</div>
+        </div>
+    </a>
+</div>
+
 <!-- ── Detail Panels ── -->
 <div class="grid2">
     <section class="panel">

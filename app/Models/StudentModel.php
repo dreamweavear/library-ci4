@@ -12,6 +12,6 @@ class StudentModel extends Model
     protected $useTimestamps = true;
     protected $allowedFields = [
         'full_name', 'phone', 'guardian_name', 'notes', 'admission_date',
-        'photo', 'aadhar_number', 'preparing_for', 'address', 'email', 'status',
+        'photo', 'aadhar_number', 'preparing_for', 'address', 'email', 'status', 'dob',
     ];
 }

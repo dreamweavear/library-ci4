@@ -73,6 +73,12 @@ function fval(string $field, $student, $prefill, $default = '')
     </label>
 
     <label>
+        Date of Birth (optional)
+        <input type="date" name="dob" id="dob"
+               value="<?= esc(fval('dob', $student, $prefill)) ?>">
+    </label>
+
+    <label>
         Email (optional)
         <input type="email" name="email" id="email"
                value="<?= esc(fval('email', $student, $prefill)) ?>"

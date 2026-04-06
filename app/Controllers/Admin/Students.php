@@ -129,6 +129,7 @@ class Students extends BaseController
                 'notes'                   => 'permit_empty|max_length[2000]',
                 'admission_date'          => 'permit_empty|valid_date[Y-m-d]',
                 'admission_fee_collected' => 'permit_empty|is_natural',
+                'dob'                     => 'permit_empty|valid_date[Y-m-d]',
                 'aadhar_number'           => 'permit_empty|max_length[12]',
                 'preparing_for'           => 'permit_empty|max_length[100]',
                 'address'                 => 'permit_empty|max_length[2000]',
@@ -170,6 +171,7 @@ class Students extends BaseController
                 'preparing_for'  => trim((string) $this->request->getPost('preparing_for')) ?: null,
                 'address'        => trim((string) $this->request->getPost('address')) ?: null,
                 'email'          => trim((string) $this->request->getPost('email')) ?: null,
+                'dob'            => trim((string) $this->request->getPost('dob')) ?: null,
                 'status'         => 'active',
             ]);
 
@@ -253,6 +255,7 @@ class Students extends BaseController
                 'notes'          => 'permit_empty|max_length[2000]',
                 'admission_date' => 'permit_empty|valid_date[Y-m-d]',
                 'aadhar_number'  => 'permit_empty|max_length[12]',
+                'dob'            => 'permit_empty|valid_date[Y-m-d]',
                 'preparing_for'  => 'permit_empty|max_length[100]',
                 'address'        => 'permit_empty|max_length[2000]',
                 'email'          => 'permit_empty|valid_email|max_length[100]',
@@ -321,6 +324,7 @@ class Students extends BaseController
                 'preparing_for'  => trim((string) $this->request->getPost('preparing_for')) ?: null,
                 'address'        => trim((string) $this->request->getPost('address')) ?: null,
                 'email'          => trim((string) $this->request->getPost('email')) ?: null,
+                'dob'            => trim((string) $this->request->getPost('dob')) ?: null,
                 'status'         => $newStatus,
             ]);
 
