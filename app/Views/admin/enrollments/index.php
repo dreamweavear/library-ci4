@@ -18,6 +18,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Sr.No</th>
             <th>ID</th>
             <th>Student</th>
             <th>Phone</th>
@@ -31,8 +32,10 @@
         </tr>
     </thead>
     <tbody>
+        <?php $sno = 1; ?>
         <?php foreach ($enrollments as $e): ?>
         <tr>
+            <td><?= $sno++ ?></td>
             <td><?= esc($e['id']) ?></td>
             <td><a class="link" href="<?= site_url('/admin/students/' . $e['student_id']) ?>"><?= esc($e['full_name']) ?></a></td>
             <td><?= esc($e['phone'] ?? '') ?></td>

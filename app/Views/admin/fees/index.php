@@ -29,6 +29,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>#</th>
                 <th>ID</th>
                 <th>System Receipt#</th>
                 <th>Manual Receipt#</th>
@@ -41,8 +42,10 @@
             </tr>
         </thead>
         <tbody>
+             <?php $sno = 1; ?>
             <?php foreach ($recent as $r): ?>
                 <tr>
+                    <td><?= $sno++ ?></td>
                     <td><?= esc($r['id']) ?></td>
                     <td><?= esc($r['receipt_no']) ?></td>
                     <td><?= esc($r['receipt_number'] ?? '-') ?></td>

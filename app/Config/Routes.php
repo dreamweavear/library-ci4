@@ -88,4 +88,6 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     // Existing pages route (kept).
     $routes->get('pages', 'Admin\Pages::index');
     $routes->resource('pages', ['controller' => 'Admin\Pages']);
+       // WhatsApp Test  ← YAHAN ADD KAREIN
+    //$routes->get('test-wa', 'Admin\Enrollments::testWa');
 });

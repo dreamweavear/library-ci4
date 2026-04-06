@@ -50,6 +50,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Sr.No.</th>
             <th style="width:36px;">
                 <input type="checkbox" id="chk-all" onchange="toggleAll(this)" title="Select all">
             </th>
@@ -63,6 +64,7 @@
         </tr>
     </thead>
     <tbody>
+        <?php $sno = 1; ?>
         <?php foreach ($students as $s): ?>
         <?php
             $stu_status = $s['status'] ?? 'active';
@@ -74,7 +76,9 @@
             };
         ?>
         <tr>
+            <td><?= $sno++ ?></td>
             <td><input type="checkbox" name="ids[]" value="<?= esc($s['id']) ?>" class="row-chk"></td>
+            
             <td>
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id']) ?>"><?= esc($s['full_name']) ?></a>
                 <div class="muted small">#<?= esc($s['id']) ?></div>

@@ -183,9 +183,10 @@ class Students extends BaseController
                     'type'          => 'ADMISSION',
                     'for_month'     => null,
                     'amount'        => $admissionFeeCollected,
-                    'paid_on'       => trim((string) $this->request->getPost('admission_date')) ?: date('Y-m-d'),
-                    'receipt_no'    => $receipt,
-                    'notes'         => 'Admission fee',
+                    'paid_on'        => trim((string) $this->request->getPost('admission_date')) ?: date('Y-m-d'),
+                    'receipt_no'     => $receipt,
+                    'receipt_number' => trim((string) $this->request->getPost('receipt_number')) ?: null,
+                    'notes'          => 'Admission fee',
                 ]);
             }
 

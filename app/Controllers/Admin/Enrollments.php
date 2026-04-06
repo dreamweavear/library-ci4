@@ -9,6 +9,34 @@ use App\Models\StudentModel;
 
 class Enrollments extends BaseController
 {
+        // line added for email functionaliy starts
+                    private string $accessToken;
+                private string $phoneNumberId;
+                private array $emailConfig = [
+                    'protocol'   => 'smtp',
+                    'SMTPHost'   => 'mail.aruncomputer.com',
+                    'SMTPUser'   => 'admin@aruncomputer.com',
+                    'SMTPPass'   => 'Rewa@12345678',
+                    'SMTPPort'   => 587,
+                    'SMTPCrypto' => 'tls',
+                    'mailType'   => 'html',
+                    'charset'    => 'utf-8',
+                    'wordWrap'   => true,
+                    'validate'   => true,
+                    'timeout'    => 10,
+                    'newline'    => "\r\n"
+                ];
+        // end here
+    // function added for whatsapp functionality starts 
+      /*      private string $accessToken;
+            private string $phoneNumberId;
+    */
+            public function __construct()
+            {
+                $this->accessToken   = env('WHATSAPP_TOKEN');
+                $this->phoneNumberId = env('WHATSAPP_PHONE_NUMBER_ID');
+            }
+       // end here      
     public function index()
     {
         try {
@@ -142,6 +170,27 @@ class Enrollments extends BaseController
             'end_date'      => null,
             'status'        => 'ACTIVE',
         ]);
+
+    // line below is add for whatsapp functionalaiye starts
+    // WhatsApp message bhejo
+        if (!empty($student['phone'])) {
+            $this->sendEnrollmentWhatsApp([
+                'full_name' => $student['full_name'],
+                'phone'     => $student['phone'],
+                'seat_no'   => $seat['seat_no'],
+            ]);
+        }
+    // end here
+
+    // Email bhejo (optional - sirf tab jab email ho) start here
+if (!empty($student['email'])) {
+    $emailResult = $this->sendEnrollmentEmail($student, $seat, $startDate);
+    if (!$emailResult['success']) {
+        log_message('error', '[LibEmail] Enrollment #' . $id . ' | ' . ($emailResult['error'] ?? ''));
+    }
+}
+// email code end here
+
 
         return redirect()->to(site_url('admin/enrollments'))->with('success', 'Seat allotted (Enrollment #' . $id . ').');
     } catch (\Throwable $e) {
@@ -314,4 +363,196 @@ class Enrollments extends BaseController
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+// function added for whatsapp functionality  starts
+private function sendEnrollmentWhatsApp(array $student): array
+{
+    $phone = preg_replace('/\D/', '', $student['phone']);
+    if (strlen($phone) === 10) $phone = '91' . $phone;
+    if (strlen($phone) !== 12)  return ['success' => false, 'error' => 'Invalid phone'];
+
+    $payload = json_encode([
+        'messaging_product' => 'whatsapp',
+        'to'                => $phone,
+        'type'              => 'template',
+        'template'          => [
+            'name'       => 'library_admission',
+            'language'   => ['code' => 'en_US'],
+            'components' => [[
+                'type'       => 'body',
+                'parameters' => [
+                    ['type' => 'text', 'text' => $student['full_name']],
+                    ['type' => 'text', 'text' => (string)$student['seat_no']],
+                    ['type' => 'text', 'text' => date('d-m-Y')],  // aaj ki date
+                ]
+            ]]
+        ]
+    ]);
+
+    $url = 'https://graph.facebook.com/v22.0/' . $this->phoneNumberId . '/messages';
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $this->accessToken,
+            'Content-Type: application/json',
+        ],
+        CURLOPT_TIMEOUT        => 15,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+    ]);
+
+    $response  = curl_exec($ch);
+    $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        log_message('error', '[LibWA] cURL: ' . $curlError);
+        return ['success' => false, 'error' => $curlError];
+    }
+
+    if ($httpCode === 200) {
+        log_message('info', '[LibWA] Sent OK to ' . $phone);
+        return ['success' => true];
+    }
+
+    log_message('error', '[LibWA] HTTP ' . $httpCode . ' | ' . $response);
+   // return ['success' => false, 'error' => 'HTTP ' . $httpCode];
+  // upar ki line whatsapp page not found check karneke liye change kiya 
+     return ['success' => false, 'error' => 'HTTP ' . $httpCode . ' | ' . $response];
+}
+
+private function saveWaLog(array $student, string $template, array $result): void
+{
+    try {
+        \Config\Database::connect()->table('whatsapp_logs')->insert([
+            'student_id'    => 0,
+            'student_name'  => $student['full_name'],
+            'phone'         => $student['phone'],
+            'template_name' => $template,
+            'status'        => $result['success'] ? 'sent' : 'failed',
+            'error_message' => $result['error'] ?? null,
+            'sent_at'       => date('Y-m-d H:i:s'),
+        ]);
+    } catch (\Throwable $e) {
+        log_message('error', '[LibWA Log] ' . $e->getMessage());
+    }
+}
+/*
+public function testWa()
+{
+    $result = $this->sendEnrollmentWhatsApp([
+        'full_name' => 'Om Prakash Ji',
+        'phone'     => '9926542408',
+        'seat_no'   => '42',
+    ]);
+
+    echo '<pre style="font-size:16px; padding:20px;">';
+    echo 'Token (first 25): ' . substr($this->accessToken, 0, 25) . '...' . "\n";
+    echo 'Phone ID: ' . $this->phoneNumberId . "\n\n";
+    echo 'Result: ';
+    print_r($result);
+    echo '</pre>';
+}
+*/
+//end here
+
+        // emale functionaliyt start here 
+        private function sendEnrollmentEmail(array $student, array $seat, string $startDate): array
+{
+    try {
+        $email = \Config\Services::email($this->emailConfig);
+
+        $email->setFrom('admin@aruncomputer.com', 'Brilient Brains Library');
+        $email->setTo($student['email']);
+        $email->setSubject('Seat Allotment Confirmation - Brilient Brains Library');
+        $email->setMessage($this->createEnrollmentEmailTemplate($student, $seat, $startDate));
+
+        if ($email->send(false)) {
+            log_message('info', '[LibEmail] Sent to ' . $student['email']);
+            return ['success' => true];
+        }
+
+        log_message('error', '[LibEmail] Failed to ' . $student['email']);
+        return ['success' => false, 'error' => 'Email send failed'];
+
+    } catch (\Exception $e) {
+        log_message('error', '[LibEmail] Exception: ' . $e->getMessage());
+        return ['success' => false, 'error' => $e->getMessage()];
+    }
+}
+
+private function createEnrollmentEmailTemplate(array $student, array $seat, string $startDate): string
+{
+    $institutePhone   = '9926542408';
+    $instituteAddress = 'Alld. Road, Urrhat, Rewa (M.P.)';
+    $websiteUrl       = 'www.brilliantbrains.vindhy.com';
+    $loginUrl         = base_url('student/login');
+
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:20px; }
+            .container { background:#fff; max-width:600px; margin:0 auto; border-radius:10px; overflow:hidden; box-shadow:0 0 15px rgba(0,0,0,0.1); }
+            .header { background:linear-gradient(135deg, #1a73e8, #0d47a1); color:#fff; padding:25px; text-align:center; }
+            .header h1 { margin:0; font-size:22px; }
+            .header p  { margin:5px 0 0; font-size:14px; opacity:0.9; }
+            .body { padding:25px; }
+            .info-box { background:#f0f7ff; border-left:4px solid #1a73e8; padding:15px; margin:20px 0; border-radius:0 8px 8px 0; }
+            .info-box p { margin:6px 0; font-size:14px; }
+            .login-box { background:#e8f5e9; border:1px solid #a5d6a7; padding:15px; border-radius:8px; margin:20px 0; }
+            .login-box p { margin:6px 0; font-size:14px; }
+            .footer { background:#f9f9f9; padding:15px; text-align:center; font-size:12px; color:#888; border-top:1px solid #eee; }
+            .badge { display:inline-block; background:#1a73e8; color:#fff; padding:3px 10px; border-radius:20px; font-size:13px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>📚 Brilient Brains Library</h1>
+                <p>Seat Allotment Confirmation</p>
+            </div>
+            <div class='body'>
+                <p>Dear <strong>{$student['full_name']}</strong>,</p>
+                <p>Aapka seat allotment successfully ho gaya hai! 🎉</p>
+
+                <div class='info-box'>
+                    <p>🪑 <strong>Seat No:</strong> <span class='badge'>{$seat['seat_no']}</span></p>
+                    <p>🏢 <strong>Floor:</strong> {$seat['floor']}</p>
+                    <p>📅 <strong>Start Date:</strong> " . date('d-m-Y', strtotime($startDate)) . "</p>
+                    <p>📋 <strong>Plan:</strong> Full Day / Half Day</p>
+                </div>
+
+                <div class='login-box'>
+                    <p>🔐 <strong>Student Login:</strong></p>
+                    <p>Username: <strong>{$student['phone']}</strong></p>
+                    <p>Password: <strong>student123</strong></p>
+                    <p>🌐 <a href='{$loginUrl}'>{$loginUrl}</a></p>
+                </div>
+
+                <p>📍 <strong>Address:</strong> {$instituteAddress}</p>
+                <p>📞 <strong>Contact:</strong> {$institutePhone}</p>
+                <p>🌐 <strong>Website:</strong> {$websiteUrl}</p>
+
+                <p style='margin-top:20px;'>Study hard - Success zaroor milegi! 💪</p>
+            </div>
+            <div class='footer'>
+                &copy; " . date('Y') . " Brilient Brains Library, Rewa (M.P.)
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+}
+
+        // email functionality end here
+
+
 }

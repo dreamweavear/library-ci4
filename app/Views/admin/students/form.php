@@ -53,6 +53,10 @@ function fval(string $field, $student, $prefill, $default = '')
             Fees Collected (Admission)
             <input type="number" name="admission_fee_collected" id="admission_fee_collected" min="0" step="1" value="<?= esc(old('admission_fee_collected', '0')) ?>">
         </label>
+        <label>
+            Manual Receipt No (optional)
+            <input type="text" name="receipt_number" id="receipt_number" value="<?= esc(old('receipt_number', '')) ?>">
+        </label>
     <?php endif; ?>
 
     <label>
