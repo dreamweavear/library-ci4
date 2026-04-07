@@ -52,7 +52,7 @@ class BirthdayReminder extends BaseController
             $result = $this->sendWhatsAppTemplate(
                 $student['phone'],
                 'birthday_wishes',
-                [$student['full_name'], 'Brilient Brains Library']
+                [$student['full_name']]
             );
 
             $this->saveWaLog($student, 'birthday_wishes', $result);
@@ -91,7 +91,7 @@ class BirthdayReminder extends BaseController
                 $result = $this->sendWhatsAppTemplate(
                     $student['phone'],
                     'birthday_wishes',
-                    [$student['full_name'], 'Brilient Brains Library']
+                    [$student['full_name']]
                 );
 
                 $this->saveWaLog($student, 'birthday_wishes', $result);
