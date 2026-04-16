@@ -1,6 +1,12 @@
 <?= $this->extend('admin/_layout') ?>
 <?= $this->section('content') ?>
 
+<style>
+.table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+.table tbody tr:hover { background-color: #e8f4fd; cursor: default; }
+.table thead th { background: #f1f3f5; }
+</style>
+
 <?php $title = 'Students'; ?>
 
 <div class="pagehead">
@@ -47,20 +53,20 @@
 <form id="bulk-form" method="post" action="<?= site_url('/admin/idcard/bulk') ?>">
     <?= csrf_field() ?>
 
-<table class="table">
+<table class="table" style="width:100%;border-collapse:collapse;font-size:0.9rem;">
     <thead>
-        <tr>
-            <th>Sr.No.</th>
-            <th style="width:36px;">
+        <tr style="background:#f8f9fa;border-bottom:2px solid #dee2e6;">
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Sr.No.</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:36px;">
                 <input type="checkbox" id="chk-all" onchange="toggleAll(this)" title="Select all">
             </th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Seat</th>
-            <th>Admission</th>
-            <th>Fees Paid</th>
-            <th>Phone</th>
-            <th style="width:180px;"></th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Name</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Status</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Seat</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Admission</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Fees Paid</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Phone</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:180px;"></th>
         </tr>
     </thead>
     <tbody>
@@ -76,29 +82,28 @@
             };
         ?>
         <tr>
-            <td><?= $sno++ ?></td>
-            <td><input type="checkbox" name="ids[]" value="<?= esc($s['id']) ?>" class="row-chk"></td>
-            
-            <td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= $sno++ ?></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><input type="checkbox" name="ids[]" value="<?= esc($s['id']) ?>" class="row-chk"></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id']) ?>"><?= esc($s['full_name']) ?></a>
                 <div class="muted small">#<?= esc($s['id']) ?></div>
             </td>
-            <td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600;<?= $badgeStyle ?>">
                     <?= ucfirst(esc($stu_status)) ?>
                 </span>
             </td>
-            <td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <?php if (! empty($s['seat_no'])): ?>
                     #<?= esc($s['seat_no']) ?> (<?= esc($s['seat_floor'] ?? '') ?>)
                 <?php else: ?>
                     <span class="muted">—</span>
                 <?php endif; ?>
             </td>
-            <td><?= esc($s['admission_date'] ?? '') ?></td>
-            <td>₹<?= esc($s['fees_paid_total'] ?? 0) ?></td>
-            <td><?= esc($s['phone'] ?? '') ?></td>
-            <td style="white-space:nowrap;">
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($s['admission_date'] ?? '') ?></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">₹<?= esc($s['fees_paid_total'] ?? 0) ?></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($s['phone'] ?? '') ?></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;white-space:nowrap;">
                 <!-- Edit -->
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id'] . '/edit') ?>" title="Edit">Edit</a>
                 &nbsp;·&nbsp;
