@@ -22,13 +22,33 @@ class BirthdayReminder extends BaseController
             $students = $db->table('students')
                 ->where('MONTH(dob)', date('n'))
                 ->where('DAY(dob)', date('j'))
-               // ->whereNotNull('dob')
-               ->where('dob IS NOT NULL')
+                ->where('dob IS NOT NULL')
                 ->get()
                 ->getResultArray();
 
+            // Tag as student type
+            foreach ($students as &$s) {
+                $s['_type'] = 'student';
+            }
+            unset($s);
+
+            $alumni = $db->table('library_alumni')
+                ->where('MONTH(dob)', date('n'))
+                ->where('DAY(dob)', date('j'))
+                ->where('dob IS NOT NULL')
+                ->get()
+                ->getResultArray();
+
+            // Tag as alumni type
+            foreach ($alumni as &$a) {
+                $a['_type'] = 'alumni';
+            }
+            unset($a);
+
+            $people = array_merge($students, $alumni);
+
             return view('admin/birthday/index', [
-                'students' => $students,
+                'students' => $people,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);
@@ -74,10 +94,24 @@ class BirthdayReminder extends BaseController
             $students = $db->table('students')
                 ->where('MONTH(dob)', date('n'))
                 ->where('DAY(dob)', date('j'))
-               // ->whereNotNull('dob')
                 ->where('dob IS NOT NULL')
                 ->get()
                 ->getResultArray();
+
+            foreach ($students as &$s) { $s['_type'] = 'student'; }
+            unset($s);
+
+            $alumni = $db->table('library_alumni')
+                ->where('MONTH(dob)', date('n'))
+                ->where('DAY(dob)', date('j'))
+                ->where('dob IS NOT NULL')
+                ->get()
+                ->getResultArray();
+
+            foreach ($alumni as &$a) { $a['_type'] = 'alumni'; }
+            unset($a);
+
+            $students = array_merge($students, $alumni);
 
             $sent   = 0;
             $failed = 0;

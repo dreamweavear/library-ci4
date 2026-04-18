@@ -13,6 +13,6 @@ class AlumniModel extends Model
     protected $allowedFields = [
         'student_id', 'full_name', 'phone', 'guardian_name',
         'email', 'address', 'preparing_for', 'photo',
-        'admission_date', 'left_date', 'notes',
+        'dob', 'admission_date', 'left_date', 'notes',
     ];
 }

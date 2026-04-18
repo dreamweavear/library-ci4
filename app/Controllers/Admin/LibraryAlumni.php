@@ -42,6 +42,59 @@ class LibraryAlumni extends BaseController
     }
 
     /**
+     * GET admin/alumni/new
+     */
+    public function new()
+    {
+        return view('admin/alumni/new', [
+            'errors' => session()->getFlashdata('errors') ?? [],
+        ]);
+    }
+
+    /**
+     * POST admin/alumni/create
+     */
+    public function create()
+    {
+        try {
+            $rules = [
+                'full_name'      => 'required|min_length[2]|max_length[120]',
+                'phone'          => 'permit_empty|max_length[20]',
+                'dob'            => 'permit_empty|valid_date[Y-m-d]',
+                'guardian_name'  => 'permit_empty|max_length[120]',
+                'email'          => 'permit_empty|valid_email|max_length[100]',
+                'preparing_for'  => 'permit_empty|max_length[100]',
+                'admission_date' => 'permit_empty|valid_date[Y-m-d]',
+                'left_date'      => 'permit_empty|valid_date[Y-m-d]',
+                'notes'          => 'permit_empty|max_length[2000]',
+            ];
+
+            if (! $this->validate($rules)) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
+
+            $alumniModel = new AlumniModel();
+            $alumniModel->insert([
+                'student_id'     => null,
+                'full_name'      => trim((string) $this->request->getPost('full_name')),
+                'phone'          => trim((string) $this->request->getPost('phone')) ?: null,
+                'dob'            => trim((string) $this->request->getPost('dob')) ?: null,
+                'guardian_name'  => trim((string) $this->request->getPost('guardian_name')) ?: null,
+                'email'          => trim((string) $this->request->getPost('email')) ?: null,
+                'address'        => trim((string) $this->request->getPost('address')) ?: null,
+                'preparing_for'  => trim((string) $this->request->getPost('preparing_for')) ?: null,
+                'admission_date' => trim((string) $this->request->getPost('admission_date')) ?: null,
+                'left_date'      => trim((string) $this->request->getPost('left_date')) ?: null,
+                'notes'          => trim((string) $this->request->getPost('notes')) ?: null,
+            ]);
+
+            return redirect()->to(site_url('admin/alumni'))->with('success', 'Alumni record added.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
      * GET admin/alumni/(:num)/edit
      */
     public function edit(int $id)
@@ -77,6 +130,7 @@ class LibraryAlumni extends BaseController
             $rules = [
                 'full_name'      => 'required|min_length[2]|max_length[120]',
                 'phone'          => 'permit_empty|max_length[20]',
+                'dob'            => 'permit_empty|valid_date[Y-m-d]',
                 'guardian_name'  => 'permit_empty|max_length[120]',
                 'email'          => 'permit_empty|valid_email|max_length[100]',
                 'preparing_for'  => 'permit_empty|max_length[100]',
@@ -92,6 +146,7 @@ class LibraryAlumni extends BaseController
             $alumniModel->update($id, [
                 'full_name'      => trim((string) $this->request->getPost('full_name')),
                 'phone'          => trim((string) $this->request->getPost('phone')) ?: null,
+                'dob'            => trim((string) $this->request->getPost('dob')) ?: null,
                 'guardian_name'  => trim((string) $this->request->getPost('guardian_name')) ?: null,
                 'email'          => trim((string) $this->request->getPost('email')) ?: null,
                 'address'        => trim((string) $this->request->getPost('address')) ?: null,
@@ -186,6 +241,7 @@ class LibraryAlumni extends BaseController
                         if ($onDuplicate === 'update') {
                             $alumniModel->update($existing['id'], [
                                 'full_name'      => $fullName,
+                                'dob'            => trim((string) ($data['dob'] ?? '')) ?: null,
                                 'guardian_name'  => trim((string) ($data['guardian_name'] ?? '')) ?: null,
                                 'email'          => trim((string) ($data['email'] ?? '')) ?: null,
                                 'address'        => trim((string) ($data['address'] ?? '')) ?: null,
@@ -206,6 +262,7 @@ class LibraryAlumni extends BaseController
                     'student_id'     => null,
                     'full_name'      => $fullName,
                     'phone'          => $phone,
+                    'dob'            => trim((string) ($data['dob'] ?? '')) ?: null,
                     'guardian_name'  => trim((string) ($data['guardian_name'] ?? '')) ?: null,
                     'email'          => trim((string) ($data['email'] ?? '')) ?: null,
                     'address'        => trim((string) ($data['address'] ?? '')) ?: null,
@@ -263,7 +320,7 @@ class LibraryAlumni extends BaseController
             fwrite($out, "\xEF\xBB\xBF");
 
             fputcsv($out, [
-                'id', 'student_id', 'full_name', 'phone', 'guardian_name',
+                'id', 'student_id', 'full_name', 'phone', 'dob', 'guardian_name',
                 'email', 'address', 'preparing_for',
                 'admission_date', 'left_date', 'notes',
             ]);
@@ -274,6 +331,7 @@ class LibraryAlumni extends BaseController
                     $row['student_id'] ?? '',
                     $row['full_name'],
                     $row['phone'] ?? '',
+                    $row['dob'] ?? '',
                     $row['guardian_name'] ?? '',
                     $row['email'] ?? '',
                     $row['address'] ?? '',

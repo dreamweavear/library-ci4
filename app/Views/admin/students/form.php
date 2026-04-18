@@ -42,86 +42,123 @@ function fval(string $field, $student, $prefill, $default = '')
       enctype="multipart/form-data">
     <?= csrf_field() ?>
 
-    <label>
-        Date of Admission
-        <input type="date" name="admission_date" id="admission_date"
-               value="<?= esc(fval('admission_date', $student, $prefill, date('Y-m-d'))) ?>">
-    </label>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Date of Admission
+                <input type="date" name="admission_date" id="admission_date"
+                       value="<?= esc(fval('admission_date', $student, $prefill, date('Y-m-d'))) ?>">
+            </label>
+        </div>
+        <?php if (! $isEdit): ?>
+        <div class="col-md-6">
+            <label>
+                Fees Collected (Admission)
+                <input type="number" name="admission_fee_collected" id="admission_fee_collected" min="0" step="1" value="<?= esc(old('admission_fee_collected', '0')) ?>">
+            </label>
+        </div>
+        </div><!-- /row -->
+        <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Manual Receipt No (optional)
+                <input type="text" name="receipt_number" id="receipt_number" value="<?= esc(old('receipt_number', '')) ?>">
+            </label>
+        </div>
+        <div class="col-md-6"></div>
+        <?php else: ?>
+        <div class="col-md-6"></div>
+        <?php endif; ?>
+    </div><!-- /row -->
 
-    <?php if (! $isEdit): ?>
-        <label>
-            Fees Collected (Admission)
-            <input type="number" name="admission_fee_collected" id="admission_fee_collected" min="0" step="1" value="<?= esc(old('admission_fee_collected', '0')) ?>">
-        </label>
-        <label>
-            Manual Receipt No (optional)
-            <input type="text" name="receipt_number" id="receipt_number" value="<?= esc(old('receipt_number', '')) ?>">
-        </label>
-    <?php endif; ?>
+    <!-- Row 1: Full Name | Phone -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Full Name <span style="color:#dc2626">*</span>
+                <input type="text" name="full_name" id="full_name"
+                       value="<?= esc(fval('full_name', $student, $prefill)) ?>" required>
+            </label>
+        </div>
+        <div class="col-md-6">
+            <label>
+                Phone (used as Login Username)
+                <input type="text" name="phone" id="phone"
+                       value="<?= esc(fval('phone', $student, $prefill)) ?>"
+                       placeholder="10-digit mobile number">
+            </label>
+        </div>
+    </div><!-- /row -->
 
-    <label>
-        Full Name <span style="color:#dc2626">*</span>
-        <input type="text" name="full_name" id="full_name"
-               value="<?= esc(fval('full_name', $student, $prefill)) ?>" required>
-    </label>
+    <!-- Row 2: Date of Birth | Email -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Date of Birth (optional)
+                <input type="date" name="dob" id="dob"
+                       value="<?= esc(fval('dob', $student, $prefill)) ?>">
+            </label>
+        </div>
+        <div class="col-md-6">
+            <label>
+                Email (optional)
+                <input type="email" name="email" id="email"
+                       value="<?= esc(fval('email', $student, $prefill)) ?>"
+                       placeholder="student@email.com">
+            </label>
+        </div>
+    </div><!-- /row -->
 
-    <label>
-        Phone (used as Login Username)
-        <input type="text" name="phone" id="phone"
-               value="<?= esc(fval('phone', $student, $prefill)) ?>"
-               placeholder="10-digit mobile number">
-    </label>
+    <!-- Row 3: Aadhar Number | Preparing For -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Aadhar Number (optional, 12 digits)
+                <input type="text" name="aadhar_number" id="aadhar_number"
+                       value="<?= esc(fval('aadhar_number', $student, $prefill)) ?>"
+                       maxlength="12" pattern="[0-9]{12}" inputmode="numeric" placeholder="123456789012">
+            </label>
+        </div>
+        <div class="col-md-6">
+            <label>
+                Preparing For (optional)
+                <select name="preparing_for" id="preparing_for">
+                    <option value="">— Select exam —</option>
+                    <?php
+                    $examOptions = ['UPSC', 'SSC', 'Bank', 'State PCS', 'Other'];
+                    $currentExam = fval('preparing_for', $student, $prefill);
+                    foreach ($examOptions as $opt):
+                    ?>
+                        <option value="<?= esc($opt) ?>" <?= $currentExam === $opt ? 'selected' : '' ?>>
+                            <?= esc($opt) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+        </div>
+    </div><!-- /row -->
 
-    <label>
-        Date of Birth (optional)
-        <input type="date" name="dob" id="dob"
-               value="<?= esc(fval('dob', $student, $prefill)) ?>">
-    </label>
+    <!-- Row 4: Guardian Name | Notes -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>
+                Guardian Name (optional)
+                <input type="text" name="guardian_name" id="guardian_name"
+                       value="<?= esc(fval('guardian_name', $student, $prefill)) ?>">
+            </label>
+        </div>
+        <div class="col-md-6">
+            <label>
+                Notes (optional)
+                <textarea name="notes" id="notes" rows="3"><?= esc(fval('notes', $student, $prefill)) ?></textarea>
+            </label>
+        </div>
+    </div><!-- /row -->
 
-    <label>
-        Email (optional)
-        <input type="email" name="email" id="email"
-               value="<?= esc(fval('email', $student, $prefill)) ?>"
-               placeholder="student@email.com">
-    </label>
-
-    <label>
-        Aadhar Number (optional, 12 digits)
-        <input type="text" name="aadhar_number" id="aadhar_number"
-               value="<?= esc(fval('aadhar_number', $student, $prefill)) ?>"
-               maxlength="12" pattern="[0-9]{12}" inputmode="numeric" placeholder="123456789012">
-    </label>
-
-    <label>
-        Preparing For (optional)
-        <select name="preparing_for" id="preparing_for">
-            <option value="">— Select exam —</option>
-            <?php
-            $examOptions = ['UPSC', 'SSC', 'Bank', 'State PCS', 'Other'];
-            $currentExam = fval('preparing_for', $student, $prefill);
-            foreach ($examOptions as $opt):
-            ?>
-                <option value="<?= esc($opt) ?>" <?= $currentExam === $opt ? 'selected' : '' ?>>
-                    <?= esc($opt) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </label>
-
-    <label>
-        Guardian Name (optional)
-        <input type="text" name="guardian_name" id="guardian_name"
-               value="<?= esc(fval('guardian_name', $student, $prefill)) ?>">
-    </label>
-
+    <!-- Row 5: Address (full width) -->
     <label>
         Address (optional)
         <textarea name="address" id="address" rows="3" placeholder="Full address..."><?= esc(fval('address', $student, $prefill)) ?></textarea>
-    </label>
-
-    <label>
-        Notes (optional)
-        <textarea name="notes" id="notes" rows="3"><?= esc(fval('notes', $student, $prefill)) ?></textarea>
     </label>
 
     <?php if ($isEdit): ?>

@@ -6,7 +6,8 @@
 <div class="pagehead">
     <h1>Alumni <span class="muted small" style="font-weight:400;">(<?= esc($total) ?> total)</span></h1>
     <div class="actions">
-        <a class="btn" href="<?= site_url('/admin/alumni/import') ?>">Import CSV</a>
+        <a class="btn" href="<?= site_url('/admin/alumni/new') ?>">+ Add Alumni</a>
+        <a class="btn btn--ghost" href="<?= site_url('/admin/alumni/import') ?>">Import CSV</a>
         <a class="btn btn--ghost" href="<?= site_url('/admin/alumni/export') ?>">Export CSV</a>
     </div>
 </div>
@@ -25,6 +26,7 @@
             <th>#</th>
             <th>Name</th>
             <th>Phone</th>
+            <th>DOB</th>
             <th>Preparing For</th>
             <th>Adm. Date</th>
             <th>Left Date</th>
@@ -34,7 +36,7 @@
     <tbody>
         <?php if (empty($alumni)): ?>
         <tr>
-            <td colspan="7" class="muted" style="text-align:center;padding:24px;">No alumni found.</td>
+            <td colspan="8" class="muted" style="text-align:center;padding:24px;">No alumni found.</td>
         </tr>
         <?php endif; ?>
         <?php foreach ($alumni as $a): ?>
@@ -47,6 +49,7 @@
                 <?php endif; ?>
             </td>
             <td><?= esc($a['phone'] ?? '—') ?></td>
+            <td><?= ! empty($a['dob']) ? date('d M Y', strtotime($a['dob'])) : '—' ?></td>
             <td><?= esc($a['preparing_for'] ?? '—') ?></td>
             <td><?= esc($a['admission_date'] ?? '—') ?></td>
             <td><?= esc($a['left_date'] ?? '—') ?></td>

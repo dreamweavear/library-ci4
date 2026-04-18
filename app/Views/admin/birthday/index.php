@@ -37,17 +37,24 @@
                 <?php foreach ($students as $i => $s): ?>
                 <tr>
                     <td><?= $i + 1 ?></td>
-                    <td><?= esc($s['full_name']) ?></td>
+                    <td>
+                        <?= esc($s['full_name']) ?>
+                        <?php if (($s['_type'] ?? 'student') === 'alumni'): ?>
+                            <span class="muted small" style="background:#f1f5f9;border-radius:4px;padding:1px 6px;margin-left:4px;">Alumni</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= esc($s['phone'] ?? '—') ?></td>
                     <td><?= $s['dob'] ? date('d M Y', strtotime($s['dob'])) : '—' ?></td>
                     <td>
-                        <?php if (! empty($s['phone'])): ?>
+                        <?php if (! empty($s['phone']) && ($s['_type'] ?? 'student') === 'student'): ?>
                         <form method="post" action="<?= site_url('/admin/birthday-reminder/send/' . $s['id']) ?>" style="display:inline;">
                             <?= csrf_field() ?>
                             <button type="submit" class="btn btn--ghost" style="font-size:0.8rem;padding:4px 10px;">
                                 Send WhatsApp
                             </button>
                         </form>
+                        <?php elseif (! empty($s['phone']) && ($s['_type'] ?? '') === 'alumni'): ?>
+                        <span class="muted small">Alumni (no WA)</span>
                         <?php else: ?>
                         <span class="muted small">No phone</span>
                         <?php endif; ?>

@@ -52,10 +52,11 @@
     <p class="muted small" style="margin-bottom:8px;">
         Required header row (column order does not matter, extra columns are ignored):
     </p>
-    <pre class="code" style="font-size:.78rem;">full_name,phone,email,guardian_name,address,preparing_for,admission_date,left_date,notes</pre>
+    <pre class="code" style="font-size:.78rem;">full_name,phone,dob,email,guardian_name,address,preparing_for,admission_date,left_date,notes</pre>
     <ul class="list muted small" style="margin-top:10px;">
         <li><code>full_name</code> — required, all others optional</li>
         <li><code>phone</code> — used for duplicate detection</li>
+        <li><code>dob</code> — Date of Birth, YYYY-MM-DD format</li>
         <li>Dates: YYYY-MM-DD format</li>
         <li>Handles 400+ rows (batch import)</li>
     </ul>

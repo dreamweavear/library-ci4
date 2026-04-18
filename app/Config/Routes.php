@@ -53,6 +53,8 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
 
     // Alumni
     $routes->get('alumni', 'Admin\LibraryAlumni::index');
+    $routes->get('alumni/new', 'Admin\LibraryAlumni::new');
+    $routes->post('alumni/create', 'Admin\LibraryAlumni::create');
     $routes->match(['GET', 'POST'], 'alumni/import', 'Admin\LibraryAlumni::importCsv');
     $routes->post('alumni/import/store', 'Admin\LibraryAlumni::importStore');
     $routes->get('alumni/export', 'Admin\LibraryAlumni::exportCsv');
