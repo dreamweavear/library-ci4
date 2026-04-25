@@ -156,9 +156,9 @@ class Fees extends BaseController
                 }
                 // ← YAHAN ADD KARO
 // Current month admission wale skip karo
-if ($startMonth === $currentMonth) {
-    continue;
-}
+//if ($startMonth === $currentMonth) {
+  //  continue;
+//}
 
 
 
