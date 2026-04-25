@@ -154,6 +154,13 @@ class Fees extends BaseController
                 if (! preg_match('/^\\d{4}-\\d{2}$/', $startMonth)) {
                     continue;
                 }
+                // ← YAHAN ADD KARO
+// Current month admission wale skip karo
+if ($startMonth === $currentMonth) {
+    continue;
+}
+
+
 
                 $monthsDue = $this->monthsBetweenInclusive($startMonth, $currentMonth);
                 $monthlyFee = (int) ($r['fee'] ?? 0);
@@ -165,7 +172,13 @@ class Fees extends BaseController
                     ->where('type', 'MONTHLY')
                     ->first()['amt'] ?? 0);
 
-                $pending = max(0, $dueAmount - $paid);
+               $admissionPaid = (int) ($paymentModel
+    ->selectSum('amount', 'amt')
+    ->where('student_id', (int) $r['student_id'])
+    ->where('type', 'ADMISSION')
+    ->first()['amt'] ?? 0);
+
+$pending = max(0, $dueAmount - ($paid + $admissionPaid));
 
                 if ($pending > 0) {
                     $report[] = [
