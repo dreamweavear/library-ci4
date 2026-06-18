@@ -45,15 +45,17 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
 .card-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 5mm;
+    justify-content: center; 
+    gap: 3mm;
 }
 
 /* ═══════════════════════════════════════
    ID CARD  —  88.9 mm × 60 mm
 ═══════════════════════════════════════ */
 .id-card {
-    width: 100%;
-    height: 60mm;
+    width: 88mm;
+    height: 55mm;
+    margin: 0 auto;
     border: 1.5px solid #BFDBFE;
     border-radius: 2.5mm;
     overflow: hidden;
@@ -66,17 +68,20 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
 
 /* ── HEADER ── */
 .id-card__hdr {
-    background: #1a5fa0;
+    background: #2b6da8;
     display: flex;
     align-items: center;
-    padding: 2mm 2.5mm;
+    padding: 1mm 4mm;
     gap: 2mm;
     flex-shrink: 0;
-    min-height: 13mm;
+    min-height: 12mm;
+    overflow: visible;
 }
+
+/*
 .id-card__logo-wrap {
-    width: 11mm;
-    height: 11mm;
+    width: 12mm;
+    height: 12mm;
     border-radius: 50%;
     background: #fff;
     border: 1.5px solid rgba(255,255,255,.50);
@@ -86,6 +91,29 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
     overflow: hidden;
     flex-shrink: 0;
 }
+
+*/
+
+.id-card__logo-wrap {
+    width: 14mm;
+    height: 14mm;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    flex-shrink: 0;
+
+    position: relative;
+    top: 2mm;      /* नीचे लटकाएगा */
+    z-index: 10;   /* header के ऊपर रखेगा */
+}
+
+
 .id-card__logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .id-card__logo-abbr {
     font-size: 7pt;
@@ -94,14 +122,17 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
     letter-spacing: -.5px;
 }
 .id-card__hdr-text {
-    flex: 1;
+
+     display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: center;
     color: #fff;
 }
 /* Institute name — bigger, visible from distance */
-.id-card__hdr-name { font-size: 11.5pt; font-weight: 800; line-height: 1.15; letter-spacing: .01em; }
+.id-card__hdr-name { font-size: 13pt; font-weight: 900; line-height: 1.05; letter-spacing: .02em; }
 /* Subtitle — same small size as before */
-.id-card__hdr-sub  { font-size: 5.5pt; opacity: .88; margin-top: .5mm; }
+.id-card__hdr-sub  { font-size: 6pt; opacity: .88; margin-top: .5mm; }
 
 /* ── BODY ── */
 .id-card__body {
@@ -132,7 +163,7 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
     font-size: 6pt;
     font-weight: 800;
     letter-spacing: .10em;
-    padding: 1px 8px;
+    padding: 0px 2px;
     border-radius: 3px;
     display: inline-block;
 }
@@ -166,7 +197,7 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
     word-break: break-word;
     font-size: 5.5pt;
     line-height: 1.2;
-    max-width: 42mm;
+    max-width: 55mm;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -205,11 +236,11 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
 
 /* ── FOOTER ── */
 .id-card__ftr {
-    background: #1a5fa0;
+    background: #2b6da8;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5mm 2.5mm;
+    padding: 1.0mm 2.5mm;
     flex-shrink: 0;
     min-height: 8mm;
 }
@@ -241,7 +272,7 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
 
 /* ── Print ── */
 @media print {
-    @page { size: A4 portrait; margin: 10mm; }
+    @page { size: A4 portrait; margin: 5mm; }
     body { background: none; }
     .screen-controls { display: none !important; }
     .a4-sheet { margin: 0; padding: 0; box-shadow: none; width: 100%; min-height: auto; }
@@ -289,25 +320,51 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
                         <span class="id-card__field-lbl">Name&nbsp;:</span>
                         <span class="id-card__field-val"><?= esc($student['full_name']) ?></span>
                     </div>
-
+                <!--
                     <div class="id-card__field">
                         <span class="id-card__field-lbl">Aadhar&nbsp;:</span>
                         <span class="id-card__field-val"><?= ! empty($student['aadhar_number']) ? esc($student['aadhar_number']) : '—' ?></span>
                     </div>
+        -->
 
-                    <?php if (! empty($student['seat_no'])): ?>
+        
+ <?php if (! empty($student['seat_no']) || ! empty($student['admission_date'])): ?>
+<div style="display: flex; gap: 5px; align-items: center; justify-content: space-between; margin: 1px 0;">
+
+
+
+
+            <?php if (! empty($student['admission_date'])): ?>
+                 <span style="font-size: 6pt; font-weight: 600; white-space: nowrap;">
+                Admission Date: <?= esc($student['admission_date']) ?>
+                </span>
+            <?php endif; ?>
+    
+            <?php if (! empty($student['seat_no']) && ! empty($student['admission_date'])): ?>
+                <span style="color: #CBD5E1; font-size: 6pt;">|</span>
+            <?php endif; ?>
+    
+             <?php if (! empty($student['seat_no'])): ?>
+                <span style="font-size: 6pt; font-weight: 600; white-space: nowrap;">
+                    Seat No. -<?= esc($student['seat_no']) ?>
+                </span>
+    <?php endif; ?>
+
+
+
+
+</div>
+<?php endif; ?>
+
+
+                    <?php if (! empty($student['phone'])): ?>
                     <div class="id-card__field">
-                        <span class="id-card__field-lbl">Seat No&nbsp;:</span>
-                        <span class="id-card__field-val">#<?= esc($student['seat_no']) ?></span>
+                        <span class="id-card__field-lbl">Mobile&nbsp;:</span>
+                        <span class="id-card__field-val"><?= esc($student['phone']) ?></span>
                     </div>
                     <?php endif; ?>
 
-                    <?php if (! empty($student['admission_date'])): ?>
-                    <div class="id-card__field">
-                        <span class="id-card__field-lbl">Adm. Date&nbsp;:</span>
-                        <span class="id-card__field-val"><?= esc($student['admission_date']) ?></span>
-                    </div>
-                    <?php endif; ?>
+
 
                     <?php if (! empty($student['address'])): ?>
                     <div class="id-card__field id-card__field--address">
@@ -316,12 +373,7 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
                     </div>
                     <?php endif; ?>
 
-                    <?php if (! empty($student['phone'])): ?>
-                    <div class="id-card__field">
-                        <span class="id-card__field-lbl">Mobile&nbsp;:</span>
-                        <span class="id-card__field-val"><?= esc($student['phone']) ?></span>
-                    </div>
-                    <?php endif; ?>
+
 
                 </div>
 
@@ -340,7 +392,7 @@ body { font-family: Arial, sans-serif; background: #D1D5DB; }
             <!-- FOOTER -->
             <div class="id-card__ftr">
                 <div class="id-card__ftr-addr">
-                    Alld. Road, Rewa (M.P.)<br>
+                    Allahabad Road, Urrhat, Rewa (M.P.)- 9201488597<br>
                     <span class="id-card__ftr-url">&#127760; www.brilliantbrains.vindhy.com</span>
                 </div>
                 <div class="id-card__sig-box">
