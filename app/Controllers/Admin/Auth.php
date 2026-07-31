@@ -41,6 +41,7 @@ class Auth extends BaseController
                         'status' => 'ACTIVE',
                     ]);
 
+                    session()->regenerate();
                     session()->set('admin_user_id', (int) $adminId);
                     session()->set('admin_username', $username);
 
@@ -69,6 +70,8 @@ class Auth extends BaseController
                 }
 
                 $adminUserModel->update((int) $admin['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
+
+                session()->regenerate();
 
                 session()->set('admin_user_id', (int) $admin['id']);
                 session()->set('admin_username', (string) $admin['username']);
@@ -99,7 +102,9 @@ class Auth extends BaseController
 
     public function logout()
     {
-        session()->remove(['admin_user_id', 'admin_username', 'admin_name']);
-        return redirect()->to(site_url('admin/login'))->with('success', 'Logged out.');
-    }
+        session()->destroy();
+
+        return redirect()->to(site_url('admin/login'))
+        ->with('success', 'Logged out.');
+        }
 }

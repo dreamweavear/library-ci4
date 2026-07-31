@@ -134,7 +134,8 @@ class Students extends BaseController
                 'preparing_for'           => 'permit_empty|max_length[100]',
                 'address'                 => 'permit_empty|max_length[2000]',
                 'email'                   => 'permit_empty|valid_email|max_length[100]',
-            ];
+                'photo' => 'permit_empty|is_image[photo]|max_size[photo,2048]|mime_in[photo,image/jpg,image/jpeg,image/png,image/gif,image/webp]',
+                ];
 
             if (! $this->validate($rules)) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -143,18 +144,55 @@ class Students extends BaseController
             $photoPath = null;
             $photoFile = $this->request->getFile('photo');
             if ($photoFile && $photoFile->isValid() && ! $photoFile->hasMoved()) {
+                // 1. mime check
                 $mime = $photoFile->getMimeType();
+
+                //2. extension check
+                $ext = strtolower($photoFile->getExtension());
+
+                if (! in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('errors', ['photo' => 'Invalid image extension.']);
+                    }
+
+
+
+                //mime check 
                 if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
                     return redirect()->back()->withInput()->with('errors', ['photo' => 'Photo must be an image (JPEG, PNG, GIF, WEBP).']);
                 }
+                //4-File size
                 if ($photoFile->getSizeByUnit('mb') > 2) {
                     return redirect()->back()->withInput()->with('errors', ['photo' => 'Photo must be less than 2MB.']);
                 }
+
+                  // ⭐⭐⭐ YAHAN ADD KARNA HAI ⭐⭐⭐
+                $imageInfo = getimagesize($photoFile->getTempName());
+
+                if ($imageInfo === false) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('errors', ['photo' => 'Invalid image file.']);
+                }
+
+                [$width, $height] = $imageInfo;
+
+                if ($width > 5000 || $height > 5000) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('errors', ['photo' => 'Image dimensions are too large.']);
+                }
+
+
+                //5 upload folder
                 $uploadDir = FCPATH . 'uploads/students/';
                 if (! is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
+                //6. random name
                 $newName = $photoFile->getRandomName();
+                //move
                 $photoFile->move($uploadDir, $newName);
                 $photoPath = 'uploads/students/' . $newName;
             }
@@ -216,8 +254,15 @@ class Students extends BaseController
             return redirect()->to(site_url('admin/students/' . $id))
                 ->with('success', 'Student created.' . ($generatedCredentials ? ' Login ID auto-generated.' : ''));
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
-        }
+
+
+           log_message('error', $e->getMessage());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Unexpected error occurred. Please try again.');
+                    
+                        }
     }
 
     public function edit(int $id)
@@ -260,7 +305,8 @@ class Students extends BaseController
                 'address'        => 'permit_empty|max_length[2000]',
                 'email'          => 'permit_empty|valid_email|max_length[100]',
                 'status'         => 'permit_empty|in_list[active,dormant,alumni]',
-            ];
+                'photo' => 'permit_empty|is_image[photo]|max_size[photo,2048]|mime_in[photo,image/jpeg,image/png,image/gif,image/webp]',
+                ];
 
             if (! $this->validate($rules)) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -270,12 +316,43 @@ class Students extends BaseController
             $photoFile = $this->request->getFile('photo');
             if ($photoFile && $photoFile->isValid() && ! $photoFile->hasMoved()) {
                 $mime = $photoFile->getMimeType();
+
+                $ext = strtolower($photoFile->getExtension());
+
+                if (! in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('errors', ['photo' => 'Invalid image extension.']);
+                }
+
+
+
                 if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
                     return redirect()->back()->withInput()->with('errors', ['photo' => 'Photo must be an image (JPEG, PNG, GIF, WEBP).']);
                 }
                 if ($photoFile->getSizeByUnit('mb') > 2) {
                     return redirect()->back()->withInput()->with('errors', ['photo' => 'Photo must be less than 2MB.']);
                 }
+
+                $imageInfo = getimagesize($photoFile->getTempName());
+
+                    if ($imageInfo === false) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('errors', ['photo' => 'Invalid image file.']);
+                    }
+
+                    [$width, $height] = $imageInfo;
+
+                    if ($width > 5000 || $height > 5000) {
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('errors', ['photo' => 'Image dimensions are too large.']);
+                    }
+
+
+
+
                 $uploadDir = FCPATH . 'uploads/students/';
                 if (! is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
@@ -330,9 +407,17 @@ class Students extends BaseController
 
             return redirect()->to(site_url('admin/students/' . $id))->with('success', 'Student updated.');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
-        }
+
+                log_message('error', $e->getMessage());
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Unexpected error occurred. Please try again.');
+            }
     }
+
+
+
 
     /**
      * POST admin/students/(:num)/status
