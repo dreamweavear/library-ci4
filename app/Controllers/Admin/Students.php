@@ -190,10 +190,31 @@ class Students extends BaseController
                 if (! is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                //6. random name
-                $newName = $photoFile->getRandomName();
-                //move
-                $photoFile->move($uploadDir, $newName);
+
+                // Re-encode image via GD to strip any embedded payloads (polyglot/webshell defense)
+                $imgType = $imageInfo[2];
+                $gd      = null;
+                if ($imgType === IMAGETYPE_JPEG)     { $gd = @imagecreatefromjpeg($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_PNG)  { $gd = @imagecreatefrompng($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_GIF)  { $gd = @imagecreatefromgif($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_WEBP) { $gd = @imagecreatefromwebp($photoFile->getTempName()); }
+
+                if (! $gd) {
+                    return redirect()->back()->withInput()->with('errors', ['photo' => 'Image processing failed. Please try another image.']);
+                }
+
+                // Flatten transparency (PNG/GIF alpha) onto white background before saving as JPEG
+                $canvas = imagecreatetruecolor($width, $height);
+                $white  = imagecolorallocate($canvas, 255, 255, 255);
+                imagefill($canvas, 0, 0, $white);
+                imagecopy($canvas, $gd, 0, 0, 0, 0, $width, $height);
+                imagedestroy($gd);
+
+                // Save as clean JPEG with cryptographically random filename
+                $newName = bin2hex(random_bytes(16)) . '.jpg';
+                imagejpeg($canvas, $uploadDir . $newName, 85);
+                imagedestroy($canvas);
+
                 $photoPath = 'uploads/students/' . $newName;
             }
 
@@ -357,11 +378,36 @@ class Students extends BaseController
                 if (! is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
-                $newName = $photoFile->getRandomName();
-                $photoFile->move($uploadDir, $newName);
+
+                // Re-encode image via GD to strip any embedded payloads (polyglot/webshell defense)
+                $imgType = $imageInfo[2];
+                $gd      = null;
+                if ($imgType === IMAGETYPE_JPEG)     { $gd = @imagecreatefromjpeg($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_PNG)  { $gd = @imagecreatefrompng($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_GIF)  { $gd = @imagecreatefromgif($photoFile->getTempName()); }
+                elseif ($imgType === IMAGETYPE_WEBP) { $gd = @imagecreatefromwebp($photoFile->getTempName()); }
+
+                if (! $gd) {
+                    return redirect()->back()->withInput()->with('errors', ['photo' => 'Image processing failed. Please try another image.']);
+                }
+
+                // Flatten transparency (PNG/GIF alpha) onto white background before saving as JPEG
+                $canvas = imagecreatetruecolor($width, $height);
+                $white  = imagecolorallocate($canvas, 255, 255, 255);
+                imagefill($canvas, 0, 0, $white);
+                imagecopy($canvas, $gd, 0, 0, 0, 0, $width, $height);
+                imagedestroy($gd);
+
+                // Delete old photo before saving new one
                 if (! empty($student['photo']) && file_exists(FCPATH . $student['photo'])) {
                     unlink(FCPATH . $student['photo']);
                 }
+
+                // Save as clean JPEG with cryptographically random filename
+                $newName = bin2hex(random_bytes(16)) . '.jpg';
+                imagejpeg($canvas, $uploadDir . $newName, 85);
+                imagedestroy($canvas);
+
                 $photoPath = 'uploads/students/' . $newName;
             }
 
