@@ -32,10 +32,13 @@
 
                     <div>
                         <label class="form-label" for="password">Password</label>
-                        <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="Min 6 characters" required>
-                        <?php if (isset($errors['password'])): ?>
-                            <div class="invalid-feedback"><?= esc($errors['password']) ?></div>
-                        <?php endif; ?>
+                        <div class="input-group">
+                            <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="Min 6 characters" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwd()" tabindex="-1" aria-label="Toggle password visibility"><i class="bi bi-eye" id="eyeIcon"></i></button>
+                            <?php if (isset($errors['password'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['password']) ?></div>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <button class="btn btn-bb btn-lg" type="submit">Create Admin</button>
@@ -44,4 +47,12 @@
         </div>
     </div>
 </div>
+<script>
+function togglePwd() {
+    const f = document.getElementById('password');
+    const i = document.getElementById('eyeIcon');
+    if (f.type === 'password') { f.type = 'text'; i.className = 'bi bi-eye-slash'; }
+    else { f.type = 'password'; i.className = 'bi bi-eye'; }
+}
+</script>
 <?= $this->endSection() ?>
