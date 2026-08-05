@@ -1,0 +1,44 @@
+Options -Indexes -ExecCGI
+
+# Block ALL server-side script extensions
+<FilesMatch "(?i)\.(php|php3|php4|php5|php6|php7|php8|phtml|phar|shtml|cgi|pl|py|rb|asp|aspx|jsp|sh|bash|htaccess|htpasswd|config)$">
+    Require all denied
+</FilesMatch>
+
+# Remove any registered handlers/types for uploaded files
+RemoveHandler .php .phtml .phar .php3 .php4 .php5 .php7 .php8 .cgi .pl .py .asp .aspx
+RemoveType   .php .phtml .phar .php3 .php4 .php5 .php7 .php8
+
+# Disable PHP engine (mod_php) - fallback for CGI-based PHP too
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Force all files to be served as binary/octet-stream (no MIME sniffing execution)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Content-Disposition "inline"
+</IfModule>
+
+# Force correct content type for images only
+<FilesMatch "(?i)\.jpg$">
+    ForceType image/jpeg
+</FilesMatch>
+<FilesMatch "(?i)\.png$">
+    ForceType image/png
+</FilesMatch>
+<FilesMatch "(?i)\.gif$">
+    ForceType image/gif
+</FilesMatch>
+<FilesMatch "(?i)\.webp$">
+    ForceType image/webp
+</FilesMatch>

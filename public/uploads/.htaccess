@@ -1,0 +1,26 @@
+Options -Indexes -ExecCGI
+
+# Block all server-side scripts in entire uploads directory tree
+<FilesMatch "(?i)\.(php|php3|php4|php5|php6|php7|php8|phtml|phar|shtml|cgi|pl|py|rb|asp|aspx|jsp|sh|bash|htpasswd|config)$">
+    Require all denied
+</FilesMatch>
+
+RemoveHandler .php .phtml .phar .php3 .php4 .php5 .php7 .php8 .cgi .pl .py .asp .aspx
+RemoveType   .php .phtml .phar .php3 .php4 .php5 .php7 .php8
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php5.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
