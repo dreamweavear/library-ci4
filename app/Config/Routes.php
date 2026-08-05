@@ -32,6 +32,7 @@ $routes->group('student', ['filter' => 'studentauth'], static function ($routes)
 // Admin auth
 $routes->match(['GET', 'POST'], 'admin/login', 'Admin\Auth::login');
 $routes->get('admin/logout', 'Admin\Auth::logout');
+$routes->match(['GET', 'POST'], 'admin/change-password', 'Admin\Auth::changePassword', ['filter' => 'adminauth']);
 
 // Admin app
 $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {

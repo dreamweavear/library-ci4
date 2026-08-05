@@ -11,12 +11,16 @@
 
                 <?php $errors = $errors ?? []; ?>
 
+                <?php if (session()->getFlashdata('error')): ?>
+                    <div class="alert alert-danger py-2"><?= esc(session()->getFlashdata('error')) ?></div>
+                <?php endif; ?>
+
                 <form method="post" action="<?= site_url('admin/login') ?>" class="vstack gap-3">
                     <?= csrf_field() ?>
 
                     <div>
                         <label class="form-label" for="username">Username</label>
-                        <input class="form-control <?= isset($errors['username']) ? 'is-invalid' : '' ?>" type="text" id="username" name="username" value="<?= esc(old('username')) ?>" placeholder="admin" required>
+                        <input class="form-control <?= isset($errors['username']) ? 'is-invalid' : '' ?>" type="text" id="username" name="username" value="<?= esc(old('username')) ?>" placeholder="admin" required autocomplete="username">
                         <?php if (isset($errors['username'])): ?>
                             <div class="invalid-feedback"><?= esc($errors['username']) ?></div>
                         <?php endif; ?>
@@ -25,7 +29,7 @@
                     <div>
                         <label class="form-label" for="password">Password</label>
                         <div class="input-group">
-                            <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="••••••••" required>
+                            <input class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
                             <button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPassword()" tabindex="-1" aria-label="Toggle password visibility">
                                 <i class="bi bi-eye" id="adminEyeIcon"></i>
                             </button>
@@ -33,6 +37,14 @@
                                 <div class="invalid-feedback"><?= esc($errors['password']) ?></div>
                             <?php endif; ?>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="captcha_answer">
+                            Security Check &nbsp;<span class="fw-bold text-primary"><?= esc($captcha_question ?? '') ?></span>
+                        </label>
+                        <input class="form-control" type="number" id="captcha_answer" name="captcha_answer" placeholder="Enter answer" required autocomplete="off">
+                        <div class="form-text">Solve the math question above to continue.</div>
                     </div>
 
                     <button class="btn btn-bb btn-lg" type="submit">Login</button>

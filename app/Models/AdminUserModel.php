@@ -18,5 +18,7 @@ class AdminUserModel extends Model
         'role',
         'status',
         'last_login_at',
+        'failed_attempts',
+        'locked_until',
     ];
 }
