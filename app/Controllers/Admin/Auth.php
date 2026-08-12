@@ -167,11 +167,19 @@ class Auth extends BaseController
                 ]);
             }
 
-            $captcha = $this->generateCaptcha();
+            // If coming back after a failed POST, flashdata already has the correct
+            // question AND session already has the matching answer (set in POST branch).
+            // Do NOT call generateCaptcha() again — it would overwrite the session
+            // answer while the view still shows the old question, causing a mismatch.
+            $captchaQuestion = session()->getFlashdata('captcha_question');
+            if ($captchaQuestion === null) {
+                $captchaQuestion = $this->generateCaptcha()['question'];
+            }
+
             return view('admin/auth/login', [
                 'title'            => 'Admin Login · Brilient Brains Library',
                 'errors'           => session()->getFlashdata('errors') ?? [],
-                'captcha_question' => session()->getFlashdata('captcha_question') ?? $captcha['question'],
+                'captcha_question' => $captchaQuestion,
             ]);
 
         } catch (\Throwable $e) {
