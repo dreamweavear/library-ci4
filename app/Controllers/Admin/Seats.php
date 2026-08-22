@@ -42,10 +42,17 @@ class Seats extends BaseController
 
             $library = config('Library');
 
+            $totalSeats    = count($seats);
+            $occupiedCount = count($seatAssignments);
+            $availableCount = $totalSeats - $occupiedCount;
+
             return view('admin/seats/index', [
-                'seats'   => $seats,
-                'seatAssignments' => $seatAssignments,
-                'library' => $library,
+                'seats'          => $seats,
+                'seatAssignments'=> $seatAssignments,
+                'library'        => $library,
+                'totalSeats'     => $totalSeats,
+                'occupiedCount'  => $occupiedCount,
+                'availableCount' => $availableCount,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);

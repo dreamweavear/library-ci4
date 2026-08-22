@@ -60,11 +60,18 @@ class Enrollments extends BaseController
 
         $library = config('Library');
 
+        $db = \Config\Database::connect();
+        $enrollStats = [
+            'active' => (int) $db->table('enrollments')->where('status', 'ACTIVE')->countAllResults(),
+            'ended'  => (int) $db->table('enrollments')->where('status', 'ENDED')->countAllResults(),
+        ];
+
             return view('admin/enrollments/index', [
                 'enrollments' => $rows,
                 'pager'       => $enrollmentModel->pager,
                 'status'      => $status,
                 'library'     => $library,
+                'enrollStats' => $enrollStats,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);

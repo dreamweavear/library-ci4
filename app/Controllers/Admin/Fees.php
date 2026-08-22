@@ -319,6 +319,132 @@ $pending = max(0, $dueAmount - ($paid + $admissionPaid));
         }
     }
 
+    public function report()
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            // Available years (from actual payments data)
+            $yearRows = $db->query('SELECT DISTINCT YEAR(paid_on) AS yr FROM payments ORDER BY yr DESC')->getResultArray();
+            $availableYears = array_column($yearRows, 'yr');
+            if (empty($availableYears)) {
+                $availableYears = [(int) date('Y')];
+            }
+
+            $year = (int) ($this->request->getGet('year') ?: date('Y'));
+            if (! in_array($year, array_map('intval', $availableYears), true)) {
+                $year = (int) $availableYears[0];
+            }
+
+            // Monthly breakdown: MONTHLY + ADMISSION split
+            $rawRows = $db->query("
+                SELECT
+                    MONTH(paid_on)                                                AS mon,
+                    COUNT(*)                                                      AS payment_count,
+                    SUM(CASE WHEN type = 'MONTHLY'   THEN amount ELSE 0 END)     AS monthly_amt,
+                    SUM(CASE WHEN type = 'ADMISSION' THEN amount ELSE 0 END)     AS admission_amt,
+                    SUM(amount)                                                   AS row_total
+                FROM payments
+                WHERE YEAR(paid_on) = ?
+                GROUP BY MONTH(paid_on)
+                ORDER BY MONTH(paid_on)
+            ", [$year])->getResultArray();
+
+            // Index by month number for easy lookup
+            $byMonth = [];
+            foreach ($rawRows as $r) {
+                $byMonth[(int) $r['mon']] = $r;
+            }
+
+            $monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+
+            // Build full 12-month array
+            $months = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $row = $byMonth[$m] ?? ['payment_count' => 0, 'monthly_amt' => 0, 'admission_amt' => 0, 'row_total' => 0];
+                $months[$m] = [
+                    'name'          => $monthNames[$m],
+                    'payment_count' => (int) $row['payment_count'],
+                    'monthly_amt'   => (int) $row['monthly_amt'],
+                    'admission_amt' => (int) $row['admission_amt'],
+                    'row_total'     => (int) $row['row_total'],
+                ];
+            }
+
+            $yearTotal     = array_sum(array_column($months, 'row_total'));
+            $yearPayments  = array_sum(array_column($months, 'payment_count'));
+            $maxMonthAmt   = max(array_column($months, 'row_total')) ?: 1;
+
+            // Best month (highest total)
+            $bestMonthNum  = 1;
+            $bestMonthAmt  = 0;
+            foreach ($months as $num => $m) {
+                if ($m['row_total'] > $bestMonthAmt) {
+                    $bestMonthAmt = $m['row_total'];
+                    $bestMonthNum = $num;
+                }
+            }
+
+            return view('admin/fees/report', [
+                'title'          => 'Collection Report',
+                'year'           => $year,
+                'availableYears' => $availableYears,
+                'months'         => $months,
+                'yearTotal'      => $yearTotal,
+                'yearPayments'   => $yearPayments,
+                'maxMonthAmt'    => $maxMonthAmt,
+                'bestMonthName'  => $monthNames[$bestMonthNum],
+                'bestMonthAmt'   => $bestMonthAmt,
+            ]);
+        } catch (\Throwable $e) {
+            return view('admin/setup', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function reportExportCsv()
+    {
+        try {
+            $db = \Config\Database::connect();
+            $year = (int) ($this->request->getGet('year') ?: date('Y'));
+
+            $rows = $db->query("
+                SELECT
+                    MONTH(paid_on) AS mon,
+                    COUNT(*) AS payment_count,
+                    SUM(CASE WHEN type = 'MONTHLY'   THEN amount ELSE 0 END) AS monthly_amt,
+                    SUM(CASE WHEN type = 'ADMISSION' THEN amount ELSE 0 END) AS admission_amt,
+                    SUM(amount) AS row_total
+                FROM payments
+                WHERE YEAR(paid_on) = ?
+                GROUP BY MONTH(paid_on)
+                ORDER BY MONTH(paid_on)
+            ", [$year])->getResultArray();
+
+            $monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="collection_report_' . $year . '.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Month', 'Payments', 'Monthly Fees (₹)', 'Admission Fees (₹)', 'Total (₹)']);
+            $grandTotal = 0;
+            $byMonth = [];
+            foreach ($rows as $r) { $byMonth[(int) $r['mon']] = $r; }
+            for ($m = 1; $m <= 12; $m++) {
+                $r = $byMonth[$m] ?? ['payment_count' => 0, 'monthly_amt' => 0, 'admission_amt' => 0, 'row_total' => 0];
+                fputcsv($out, [$monthNames[$m], $r['payment_count'], $r['monthly_amt'], $r['admission_amt'], $r['row_total']]);
+                $grandTotal += (int) $r['row_total'];
+            }
+            fputcsv($out, ['TOTAL', '', '', '', $grandTotal]);
+            fclose($out);
+            exit;
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return redirect()->back()->with('error', 'Export failed.');
+        }
+    }
+
     private function monthsBetweenInclusive(string $fromMonth, string $toMonth): int
     {
         [$fy, $fm] = array_map('intval', explode('-', $fromMonth));

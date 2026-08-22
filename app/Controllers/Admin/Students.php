@@ -521,22 +521,21 @@ class Students extends BaseController
 
             $enrollmentModel = new EnrollmentModel();
 
-            if ($newStatus === 'dormant') {
-                // End active enrollment so break months don't count as pending fees
-                $enrollmentModel
+            if ($newStatus === 'dormant' || $newStatus === 'alumni') {
+                // Fetch first, then update by primary key — correct CI4 Model pattern
+                $activeEnrollment = $enrollmentModel
                     ->where('student_id', $id)
                     ->where('status', 'ACTIVE')
-                    ->set(['status' => 'ENDED', 'end_date' => date('Y-m-d')])
-                    ->update();
+                    ->first();
+                if ($activeEnrollment) {
+                    $enrollmentModel->update((int) $activeEnrollment['id'], [
+                        'status'   => 'ENDED',
+                        'end_date' => date('Y-m-d'),
+                    ]);
+                }
             }
 
             if ($newStatus === 'alumni') {
-                // End active enrollment on alumni move too
-                $enrollmentModel
-                    ->where('student_id', $id)
-                    ->where('status', 'ACTIVE')
-                    ->set(['status' => 'ENDED', 'end_date' => date('Y-m-d')])
-                    ->update();
 
                 $alumniModel = new AlumniModel();
                 if (! $alumniModel->where('student_id', $id)->first()) {

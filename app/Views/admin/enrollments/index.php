@@ -23,6 +23,21 @@
     </div>
 </div>
 
+<div class="cards">
+    <div class="card">
+        <div class="card__label">Active Seats</div>
+        <div class="card__value" style="color:#16a34a"><?= $enrollStats['active'] ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Ended Enrollments</div>
+        <div class="card__value" style="color:#64748b"><?= $enrollStats['ended'] ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Total Allotments</div>
+        <div class="card__value"><?= $enrollStats['active'] + $enrollStats['ended'] ?></div>
+    </div>
+</div>
+
 <table class="table" style="width:100%;border-collapse:collapse;font-size:0.9rem;">
     <thead>
         <tr style="background:#f8f9fa;border-bottom:2px solid #dee2e6;">

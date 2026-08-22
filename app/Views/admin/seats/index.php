@@ -30,6 +30,21 @@
     </div>
 </div>
 
+<div class="cards">
+    <div class="card">
+        <div class="card__label">Total Seats</div>
+        <div class="card__value"><?= $totalSeats ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Occupied</div>
+        <div class="card__value" style="color:#ef4444"><?= $occupiedCount ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Available</div>
+        <div class="card__value" style="color:#16a34a"><?= $availableCount ?></div>
+    </div>
+</div>
+
 <div class="legend">
     <span class="pill pill--free">Free</span>
     <span class="pill pill--occupied">Occupied</span>

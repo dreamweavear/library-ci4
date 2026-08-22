@@ -87,6 +87,8 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->get('fees/pending/export-csv', 'Admin\Fees::exportPendingCsv');
     $routes->get('fees/export-csv', 'Admin\Fees::exportCsv');
     $routes->get('fees/receipt/(:num)', 'Admin\Fees::receipt/$1');
+    $routes->get('fees/report', 'Admin\Fees::report');
+    $routes->get('fees/report/export-csv', 'Admin\Fees::reportExportCsv');
 
     // ID Cards
     $routes->get('idcard/print/(:num)', 'Admin\IdCard::print/$1');

@@ -19,6 +19,25 @@
     </div>
 </div>
 
+<div class="cards" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card">
+        <div class="card__label">Total Students</div>
+        <div class="card__value"><?= $counts['all'] ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Active</div>
+        <div class="card__value" style="color:#16a34a"><?= $counts['active'] ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Dormant</div>
+        <div class="card__value" style="color:#d97706"><?= $counts['dormant'] ?></div>
+    </div>
+    <div class="card">
+        <div class="card__label">Alumni</div>
+        <div class="card__value" style="color:#64748b"><?= $counts['alumni'] ?></div>
+    </div>
+</div>
+
 <!-- Filter tabs -->
 <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
     <?php
