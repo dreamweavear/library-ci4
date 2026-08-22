@@ -113,7 +113,20 @@ class Enrollments extends BaseController
             $seatModel = new SeatModel();
 
         $students = $studentModel->orderBy('full_name', 'ASC')->findAll();
-        $seats = $seatModel->orderBy('seat_no', 'ASC')->findAll();
+
+        // Only show seats that have no active enrollment
+        $db = \Config\Database::connect();
+        $occupiedSeatIds = $db->table('enrollments')
+            ->select('seat_id')
+            ->where('status', 'ACTIVE')
+            ->get()->getResultArray();
+        $occupiedIds = array_column($occupiedSeatIds, 'seat_id');
+
+        $seatBuilder = $seatModel->orderBy('seat_no', 'ASC');
+        if (! empty($occupiedIds)) {
+            $seatBuilder = $seatBuilder->whereNotIn('id', $occupiedIds);
+        }
+        $seats = $seatBuilder->findAll();
 
         $library = config('Library');
 
