@@ -1,6 +1,9 @@
 <?= $this->extend('admin/_layout') ?>
 <?= $this->section('content') ?>
 
+<meta name="csrf-name" content="<?= csrf_token() ?>">
+<meta name="csrf-hash" content="<?= csrf_hash() ?>">
+
 <style>
 .table tbody tr:nth-child(even) { background-color: #f8f9fa; }
 .table tbody tr:hover { background-color: #e8f4fd; cursor: default; }
@@ -145,33 +148,30 @@
                             onclick="toggleMenu('menu-<?= $s['id'] ?>')">Status ▾</button>
                     <div id="menu-<?= $s['id'] ?>"
                          style="display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid #E2E8F0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.10);z-index:100;min-width:150px;padding:4px 0;">
+                        <?php
+                            $stuUrl  = site_url('/admin/students/' . (int)$s['id'] . '/status');
+                            $stuName = esc(json_encode($s['full_name']), 'attr');
+                        ?>
                         <?php if ($stu_status !== 'active'): ?>
-                        <form method="post" action="<?= site_url('/admin/students/' . $s['id'] . '/status') ?>" style="margin:0;">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="new_status" value="active">
-                            <button type="submit" style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#166534;">
-                                ✓ Mark Active
-                            </button>
-                        </form>
+                        <button type="button"
+                                onclick="changeStudentStatus('<?= $stuUrl ?>', 'active', <?= $stuName ?>)"
+                                style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#166534;">
+                            ✓ Mark Active
+                        </button>
                         <?php endif; ?>
                         <?php if ($stu_status !== 'dormant'): ?>
-                        <form method="post" action="<?= site_url('/admin/students/' . $s['id'] . '/status') ?>" style="margin:0;">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="new_status" value="dormant">
-                            <button type="submit" style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#854D0E;">
-                                ⏸ Mark Dormant
-                            </button>
-                        </form>
+                        <button type="button"
+                                onclick="changeStudentStatus('<?= $stuUrl ?>', 'dormant', <?= $stuName ?>)"
+                                style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#854D0E;">
+                            ⏸ Mark Dormant
+                        </button>
                         <?php endif; ?>
                         <?php if ($stu_status !== 'alumni'): ?>
-                        <form method="post" action="<?= site_url('/admin/students/' . $s['id'] . '/status') ?>" style="margin:0;"
-                              onsubmit="return confirm('Move <?= esc(addslashes($s['full_name'])) ?> to Alumni? This will copy their record to the Alumni list.');">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="new_status" value="alumni">
-                            <button type="submit" style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#475569;border-top:1px solid #F1F5F9;">
-                                🎓 Move to Alumni
-                            </button>
-                        </form>
+                        <button type="button"
+                                onclick="changeStudentStatus('<?= $stuUrl ?>', 'alumni', <?= $stuName ?>)"
+                                style="display:block;width:100%;padding:8px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:.875rem;color:#475569;border-top:1px solid #F1F5F9;">
+                            🎓 Move to Alumni
+                        </button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -193,13 +193,11 @@ function toggleAll(master) {
 }
 function toggleMenu(id) {
     var m = document.getElementById(id);
-    // Close all others first
     document.querySelectorAll('[id^="menu-"]').forEach(function(el) {
         if (el.id !== id) el.style.display = 'none';
     });
     m.style.display = m.style.display === 'none' ? 'block' : 'none';
 }
-// Close menus when clicking outside
 document.addEventListener('click', function(e) {
     if (! e.target.closest('[id^="menu-"]') && e.target.getAttribute('onclick') === null) {
         document.querySelectorAll('[id^="menu-"]').forEach(function(el) {
@@ -207,6 +205,23 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+
+// Status change via fetch — avoids nested-form HTML bug
+function changeStudentStatus(url, newStatus, studentName) {
+    if (newStatus === 'alumni') {
+        if (! confirm('Move ' + studentName + ' to Alumni? This will copy their record to the Alumni list.')) {
+            return;
+        }
+    }
+    var csrfName = document.querySelector('meta[name="csrf-name"]').content;
+    var csrfHash = document.querySelector('meta[name="csrf-hash"]').content;
+    var fd = new FormData();
+    fd.append('new_status', newStatus);
+    fd.append(csrfName, csrfHash);
+    fetch(url, { method: 'POST', body: fd })
+        .then(function() { window.location.reload(); })
+        .catch(function() { window.location.reload(); });
+}
 </script>
 
 <?= $this->endSection() ?>
