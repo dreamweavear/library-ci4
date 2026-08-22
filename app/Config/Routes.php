@@ -44,6 +44,7 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->post('seats/(:num)/floor', 'Admin\Seats::updateFloor/$1');
 
     $routes->get('students', 'Admin\Students::index');
+    $routes->get('students/export-csv', 'Admin\Students::exportCsv');
     $routes->get('students/new', 'Admin\Students::new');
     $routes->post('students', 'Admin\Students::create');
     $routes->get('students/from-alumni/(:num)', 'Admin\Students::fromAlumni/$1');
@@ -64,6 +65,7 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->post('alumni/(:num)/update', 'Admin\LibraryAlumni::update/$1');
 
     $routes->get('enrollments', 'Admin\Enrollments::index');
+    $routes->get('enrollments/export-csv', 'Admin\Enrollments::exportCsv');
     $routes->get('enrollments/new', 'Admin\Enrollments::new');
     $routes->post('enrollments', 'Admin\Enrollments::create');
     $routes->post('enrollments/(:num)/end', 'Admin\Enrollments::end/$1');
@@ -82,6 +84,8 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->get('fees', 'Admin\Fees::index');
     $routes->match(['GET', 'POST'], 'fees/collect', 'Admin\Fees::collect');
     $routes->get('fees/pending', 'Admin\Fees::pending');
+    $routes->get('fees/pending/export-csv', 'Admin\Fees::exportPendingCsv');
+    $routes->get('fees/export-csv', 'Admin\Fees::exportCsv');
     $routes->get('fees/receipt/(:num)', 'Admin\Fees::receipt/$1');
 
     // ID Cards

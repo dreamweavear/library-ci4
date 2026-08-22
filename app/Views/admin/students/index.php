@@ -14,6 +14,8 @@
     <div class="actions">
         <button class="btn" type="submit" form="bulk-form">Print Selected ID Cards</button>
         <a class="btn" href="<?= site_url('/admin/students/new') ?>">Add Student</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/students/export-csv') . (request()->getGet('status') ? '?status=' . esc(request()->getGet('status')) : '') . (request()->getGet('q') ? (request()->getGet('status') ? '&' : '?') . 'q=' . urlencode(request()->getGet('q')) : '') ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
     </div>
 </div>
 

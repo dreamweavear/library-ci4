@@ -66,6 +66,42 @@ class Students extends BaseController
         }
     }
 
+    public function exportCsv()
+    {
+        try {
+            $studentModel = new StudentModel();
+            $q      = trim((string) $this->request->getGet('q'));
+            $status = trim((string) $this->request->getGet('status'));
+            if (! in_array($status, ['active', 'dormant', 'alumni'], true)) $status = '';
+
+            $builder = $studentModel
+                ->select("students.*, (SELECT seats.seat_no FROM enrollments e JOIN seats ON seats.id = e.seat_id WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_no, (SELECT IFNULL(SUM(p.amount), 0) FROM payments p WHERE p.student_id = students.id) AS fees_paid_total")
+                ->orderBy('id', 'DESC');
+            if ($q !== '') $builder = $builder->groupStart()->like('full_name', $q)->orLike('phone', $q)->groupEnd();
+            if ($status !== '') $builder = $builder->where('students.status', $status);
+            $rows = $builder->findAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="students_' . date('Y-m-d') . '.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['ID', 'Name', 'Status', 'Phone', 'Email', 'Seat', 'Admission Date', 'Fees Paid', 'Aadhar', 'Preparing For', 'Address', 'DOB']);
+            foreach ($rows as $s) {
+                fputcsv($out, [
+                    $s['id'], $s['full_name'], $s['status'] ?? '',
+                    $s['phone'] ?? '', $s['email'] ?? '', $s['seat_no'] ?? '',
+                    $s['admission_date'] ?? '', $s['fees_paid_total'] ?? 0,
+                    $s['aadhar_number'] ?? '', $s['preparing_for'] ?? '',
+                    $s['address'] ?? '', $s['dob'] ?? '',
+                ]);
+            }
+            fclose($out);
+            exit;
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return redirect()->back()->with('error', 'Export failed.');
+        }
+    }
+
     public function show(int $id)
     {
         try {

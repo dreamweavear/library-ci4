@@ -137,3 +137,24 @@ pre.code code{color:var(--text)}
   .seatgrid{grid-template-columns:repeat(5, minmax(0, 1fr))}
 }
 
+@media print {
+  .bb-sidebar,
+  .bb-topbar,
+  .no-print,
+  .actions,
+  form.search,
+  .pager { display: none !important; }
+
+  .bb-main { margin-left: 0 !important; width: 100% !important; }
+  .bb-content { padding: 6mm !important; max-width: 100% !important; }
+
+  body { background: #fff !important; color: #000 !important; }
+  h1, h2, h3 { color: #000 !important; }
+  .muted { color: #555 !important; }
+
+  .table, .table th, .table td { color: #000 !important; background: #fff !important; border-color: #ccc !important; }
+  .panel { border: 1px solid #ccc !important; background: #fff !important; box-shadow: none !important; }
+  .card  { border: 1px solid #ccc !important; background: #fff !important; box-shadow: none !important; }
+  a, .link { color: #000 !important; text-decoration: none !important; }
+}
+

@@ -5,6 +5,8 @@
     <h1>Fees Pending Report</h1>
     <div class="actions">
         <a class="btn" href="<?= site_url('/admin/fees/collect') ?>">Collect Fee</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/fees/pending/export-csv') ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
         <a class="btn btn--ghost" href="<?= site_url('/admin/fees') ?>">Back</a>
     </div>
 </div>

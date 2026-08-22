@@ -71,6 +71,41 @@ class Enrollments extends BaseController
         }
     }
 
+    public function exportCsv()
+    {
+        try {
+            $enrollmentModel = new EnrollmentModel();
+            $status = strtoupper(trim((string) $this->request->getGet('status')));
+            if (! in_array($status, ['ACTIVE', 'ENDED'], true)) $status = 'ACTIVE';
+
+            $rows = $enrollmentModel
+                ->select('enrollments.*, students.full_name, students.phone, seats.seat_no, seats.floor')
+                ->join('students', 'students.id = enrollments.student_id')
+                ->join('seats', 'seats.id = enrollments.seat_id')
+                ->where('enrollments.status', $status)
+                ->orderBy('enrollments.id', 'DESC')
+                ->findAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="enrollments_' . strtolower($status) . '_' . date('Y-m-d') . '.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['ID', 'Student', 'Phone', 'Seat', 'Floor', 'Plan', 'Fee', 'Start Date', 'End Date', 'Status']);
+            foreach ($rows as $e) {
+                fputcsv($out, [
+                    $e['id'], $e['full_name'], $e['phone'] ?? '',
+                    $e['seat_no'], $e['floor'],
+                    $e['plan'] . (! empty($e['half_day_slot']) ? ' (' . $e['half_day_slot'] . ')' : ''),
+                    $e['fee'], $e['start_date'], $e['end_date'] ?? '', $e['status'],
+                ]);
+            }
+            fclose($out);
+            exit;
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return redirect()->back()->with('error', 'Export failed.');
+        }
+    }
+
     public function new()
     {
         try {

@@ -7,8 +7,9 @@
     <h1>Alumni <span class="muted small" style="font-weight:400;">(<?= esc($total) ?> total)</span></h1>
     <div class="actions">
         <a class="btn" href="<?= site_url('/admin/alumni/new') ?>">+ Add Alumni</a>
-        <a class="btn btn--ghost" href="<?= site_url('/admin/alumni/import') ?>">Import CSV</a>
-        <a class="btn btn--ghost" href="<?= site_url('/admin/alumni/export') ?>">Export CSV</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/alumni/import') ?>">Import CSV</a>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/alumni/export') ?>">Export CSV</a>
     </div>
 </div>
 

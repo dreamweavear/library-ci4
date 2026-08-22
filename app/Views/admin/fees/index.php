@@ -12,6 +12,8 @@
     <div class="actions">
         <a class="btn" href="<?= site_url('/admin/fees/collect') ?>">Collect Fee</a>
         <a class="btn btn--ghost" href="<?= site_url('/admin/fees/pending') ?>">Pending Report</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/fees/export-csv') ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
     </div>
 </div>
 

@@ -233,6 +233,92 @@ $pending = max(0, $dueAmount - ($paid + $admissionPaid));
         }
     }
 
+    public function exportCsv()
+    {
+        try {
+            $paymentModel = new PaymentModel();
+            $rows = $paymentModel
+                ->select('payments.*, students.full_name, students.phone')
+                ->join('students', 'students.id = payments.student_id')
+                ->orderBy('payments.id', 'DESC')
+                ->findAll();
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="fees_' . date('Y-m-d') . '.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Receipt#', 'Manual Receipt#', 'Student', 'Phone', 'Type', 'For Month', 'Amount', 'Paid On', 'Notes']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r['receipt_no'],
+                    $r['receipt_number'] ?? '',
+                    $r['full_name'],
+                    $r['phone'] ?? '',
+                    $r['type'],
+                    $r['for_month'] ?? '',
+                    $r['amount'],
+                    $r['paid_on'],
+                    $r['notes'] ?? '',
+                ]);
+            }
+            fclose($out);
+            exit;
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return redirect()->back()->with('error', 'Export failed.');
+        }
+    }
+
+    public function exportPendingCsv()
+    {
+        try {
+            $enrollmentModel = new EnrollmentModel();
+            $paymentModel    = new PaymentModel();
+
+            $rows = $enrollmentModel
+                ->select('enrollments.*, students.full_name, students.phone, seats.seat_no, seats.floor')
+                ->join('students', 'students.id = enrollments.student_id')
+                ->join('seats', 'seats.id = enrollments.seat_id')
+                ->where('enrollments.status', 'ACTIVE')
+                ->orderBy('enrollments.id', 'DESC')
+                ->findAll();
+
+            $currentMonth = date('Y-m');
+            $report = [];
+            foreach ($rows as $r) {
+                $startMonth = substr((string) $r['start_date'], 0, 7);
+                if (! preg_match('/^\d{4}-\d{2}$/', $startMonth)) continue;
+                $monthsDue  = $this->monthsBetweenInclusive($startMonth, $currentMonth);
+                $monthlyFee = (int) ($r['fee'] ?? 0);
+                $dueAmount  = $monthsDue * $monthlyFee;
+                $paid       = (int) ($paymentModel->selectSum('amount', 'amt')->where('enrollment_id', (int) $r['id'])->where('type', 'MONTHLY')->first()['amt'] ?? 0);
+                $admPaid    = (int) ($paymentModel->selectSum('amount', 'amt')->where('student_id', (int) $r['student_id'])->where('type', 'ADMISSION')->first()['amt'] ?? 0);
+                $pending    = max(0, $dueAmount - ($paid + $admPaid));
+                if ($pending > 0) {
+                    $report[] = array_merge($r, ['monthlyFee' => $monthlyFee, 'dueAmount' => $dueAmount, 'paidAmount' => $paid, 'pendingAmount' => $pending, 'fromMonth' => $startMonth, 'toMonth' => $currentMonth]);
+                }
+            }
+            usort($report, static fn($a, $b) => $b['pendingAmount'] <=> $a['pendingAmount']);
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="pending_fees_' . date('Y-m-d') . '.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Student', 'Phone', 'Seat', 'Floor', 'Plan', 'From', 'To', 'Monthly Fee', 'Due', 'Paid', 'Pending']);
+            foreach ($report as $r) {
+                fputcsv($out, [
+                    $r['full_name'], $r['phone'] ?? '', $r['seat_no'], $r['floor'],
+                    $r['plan'] . (! empty($r['half_day_slot']) ? ' (' . $r['half_day_slot'] . ')' : ''),
+                    $r['fromMonth'], $r['toMonth'],
+                    $r['monthlyFee'], $r['dueAmount'], $r['paidAmount'], $r['pendingAmount'],
+                ]);
+            }
+            fclose($out);
+            exit;
+        } catch (\Throwable $e) {
+            log_message('error', $e->getMessage());
+            return redirect()->back()->with('error', 'Export failed.');
+        }
+    }
+
     private function monthsBetweenInclusive(string $fromMonth, string $toMonth): int
     {
         [$fy, $fm] = array_map('intval', explode('-', $fromMonth));

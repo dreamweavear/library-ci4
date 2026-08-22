@@ -18,6 +18,8 @@
         <?php else: ?>
             <a class="btn btn--ghost" href="<?= site_url('/admin/enrollments?status=ACTIVE') ?>">View Active</a>
         <?php endif; ?>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn btn--ghost no-print" href="<?= site_url('/admin/enrollments/export-csv') . '?status=' . esc($status) ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
     </div>
 </div>
 
