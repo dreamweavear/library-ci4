@@ -118,10 +118,11 @@ class Enrollments extends BaseController
         $library = config('Library');
 
             return view('admin/enrollments/form', [
-                'students' => $students,
-                'seats'    => $seats,
-                'library'  => $library,
-                'errors'   => session()->getFlashdata('errors') ?? [],
+                'students'             => $students,
+                'seats'                => $seats,
+                'library'              => $library,
+                'preselectedStudentId' => (int) $this->request->getGet('student_id'),
+                'errors'               => session()->getFlashdata('errors') ?? [],
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);

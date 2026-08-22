@@ -109,11 +109,13 @@
                 <!-- Edit -->
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id'] . '/edit') ?>" title="Edit">Edit</a>
                 &nbsp;·&nbsp;
-                <!-- Change Seat (only if seat allotted) -->
+                <!-- Seat: Allot if none, Change if allotted -->
                 <?php if (! empty($s['seat_no'])): ?>
                 <a class="link" href="<?= site_url('/admin/enrollments/change-seat/' . $s['id']) ?>" title="Change Seat">⇄ Seat</a>
-                &nbsp;·&nbsp;
+                <?php else: ?>
+                <a class="link" href="<?= site_url('/admin/enrollments/new?student_id=' . (int) $s['id']) ?>" title="Allot Seat">+ Seat</a>
                 <?php endif; ?>
+                &nbsp;·&nbsp;
                 <!-- ID Card -->
                 <a class="link" href="<?= site_url('/admin/idcard/print/' . $s['id']) ?>" title="Print ID Card">ID Card</a>
                 &nbsp;·&nbsp;

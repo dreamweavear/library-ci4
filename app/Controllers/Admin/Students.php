@@ -519,7 +519,25 @@ class Students extends BaseController
                 return redirect()->to(site_url('admin/students'))->with('error', 'Student not found.');
             }
 
+            $enrollmentModel = new EnrollmentModel();
+
+            if ($newStatus === 'dormant') {
+                // End active enrollment so break months don't count as pending fees
+                $enrollmentModel
+                    ->where('student_id', $id)
+                    ->where('status', 'ACTIVE')
+                    ->set(['status' => 'ENDED', 'end_date' => date('Y-m-d')])
+                    ->update();
+            }
+
             if ($newStatus === 'alumni') {
+                // End active enrollment on alumni move too
+                $enrollmentModel
+                    ->where('student_id', $id)
+                    ->where('status', 'ACTIVE')
+                    ->set(['status' => 'ENDED', 'end_date' => date('Y-m-d')])
+                    ->update();
+
                 $alumniModel = new AlumniModel();
                 if (! $alumniModel->where('student_id', $id)->first()) {
                     $alumniModel->insert([
@@ -540,7 +558,10 @@ class Students extends BaseController
 
             $studentModel->update($id, ['status' => $newStatus]);
 
-            return redirect()->back()->with('success', esc($student['full_name']) . ' marked as ' . ucfirst($newStatus) . '.');
+            $suffix = ($newStatus === 'active')
+                ? ' — Please allot a seat if needed.'
+                : '';
+            return redirect()->back()->with('success', esc($student['full_name']) . ' marked as ' . ucfirst($newStatus) . '.' . $suffix);
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

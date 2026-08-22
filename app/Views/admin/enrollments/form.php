@@ -26,7 +26,14 @@
         <select name="student_id" required>
             <option value="">Select student</option>
             <?php foreach ($students as $s): ?>
-                <option value="<?= esc($s['id']) ?>" <?= (string) old('student_id') === (string) $s['id'] ? 'selected' : '' ?>>
+                <?php
+                    $oldVal = old('student_id');
+                    $preId  = (int) ($preselectedStudentId ?? 0);
+                    $sel    = ($oldVal !== null)
+                        ? ((string) $oldVal === (string) $s['id'])
+                        : ($preId > 0 && $preId === (int) $s['id']);
+                ?>
+                <option value="<?= esc($s['id']) ?>" <?= $sel ? 'selected' : '' ?>>
                     <?= esc($s['full_name']) ?><?= ! empty($s['phone']) ? ' - ' . esc($s['phone']) : '' ?>
                 </option>
             <?php endforeach; ?>
