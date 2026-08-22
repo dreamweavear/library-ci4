@@ -213,7 +213,7 @@ $pending = max(0, $dueAmount - ($paid + $admissionPaid));
         try {
             $paymentModel = new PaymentModel();
             $row = $paymentModel
-                ->select('payments.*, students.full_name, students.phone, students.admission_date, seats.seat_no, seats.floor')
+                ->select('payments.*, students.full_name, students.phone, students.admission_date, seats.seat_no, seats.floor, enrollments.plan, enrollments.half_day_slot')
                 ->join('students', 'students.id = payments.student_id')
                 ->join('enrollments', 'enrollments.id = payments.enrollment_id', 'left')
                 ->join('seats', 'seats.id = enrollments.seat_id', 'left')

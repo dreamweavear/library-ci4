@@ -34,6 +34,16 @@ $receiptRows = static function(array $p, bool $isOfficeCopy): void { ?>
     <?php if (! empty($p['seat_no'])): ?>
     <tr><th>Seat</th><td>#<?= esc($p['seat_no']) ?> (<?= esc($p['floor'] ?? '') ?>)</td></tr>
     <?php endif; ?>
+    <?php if (! empty($p['plan'])): ?>
+    <?php
+        $planLabel = match(strtoupper($p['plan'])) {
+            'FULL_DAY' => 'Full Day',
+            'HALF_DAY' => 'Half Day' . (! empty($p['half_day_slot']) ? ' (' . esc($p['half_day_slot']) . ')' : ''),
+            default    => esc($p['plan']),
+        };
+    ?>
+    <tr><th>Plan</th><td><?= $planLabel ?></td></tr>
+    <?php endif; ?>
     <tr><th>Admission Date</th><td><?= esc($p['admission_date'] ?? '-') ?></td></tr>
     <tr class="receipt-amount-row">
         <th>Amount Paid</th>
