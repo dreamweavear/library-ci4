@@ -149,6 +149,35 @@ $pendingFees   = max(0, $totalExpected - $totalPaid);
 
 </div>
 
+<!-- ── Collection Stats ── -->
+<div class="db-section-heading">
+    <i class="bi bi-cash-coin"></i> Collection
+</div>
+<div class="db-grid-3" style="max-width:760px;">
+
+    <a href="<?= site_url('/admin/fees') ?>" class="db-stat bg-teal" style="min-height:110px;">
+        <i class="bi bi-calendar-check-fill db-stat__icon"></i>
+        <div class="db-stat__num" style="font-size:1.8rem;">&#8377;<?= number_format($todayCollection) ?></div>
+        <div class="db-stat__label">Aaj Ka Collection</div>
+        <div class="db-stat__view"><?= date('d M Y') ?></div>
+    </a>
+
+    <a href="<?= site_url('/admin/fees/report') ?>" class="db-stat bg-purple" style="min-height:110px;">
+        <i class="bi bi-bar-chart-line-fill db-stat__icon"></i>
+        <div class="db-stat__num" style="font-size:1.8rem;">&#8377;<?= number_format($monthCollection) ?></div>
+        <div class="db-stat__label">Is Mahine Ka Collection</div>
+        <div class="db-stat__view"><?= date('F Y') ?></div>
+    </a>
+
+    <a href="<?= site_url('/admin/fees/pending') ?>" class="db-stat bg-orange" style="min-height:110px;">
+        <i class="bi bi-exclamation-triangle-fill db-stat__icon"></i>
+        <div class="db-stat__num" style="font-size:1.8rem;"><?= count($dueStudents) ?></div>
+        <div class="db-stat__label">Fees Due Students</div>
+        <div class="db-stat__view">View Pending &rarr;</div>
+    </a>
+
+</div>
+
 <!-- ── Students ── -->
 <div class="db-section-heading">
     <i class="bi bi-person-fill"></i> Students
@@ -200,6 +229,51 @@ $pendingFees   = max(0, $totalExpected - $totalPaid);
     </a>
 
 </div>
+
+<!-- ── Fee Due Alert ── -->
+<?php if (! empty($dueStudents)): ?>
+<div class="db-section-heading">
+    <i class="bi bi-exclamation-triangle-fill" style="color:#ea580c;"></i> Fee Due Alert
+    <span style="font-size:.8rem;font-weight:500;color:#64748b;margin-left:4px;">(<?= count($dueStudents) ?> students)</span>
+</div>
+<section class="panel" style="padding:0;overflow:hidden;">
+    <table class="table" style="margin-bottom:0;font-size:.875rem;">
+        <thead>
+            <tr>
+                <th style="padding:10px 14px;">Seat</th>
+                <th style="padding:10px 14px;">Student</th>
+                <th style="padding:10px 14px;">Phone</th>
+                <th style="padding:10px 14px;">Monthly Fee</th>
+                <th style="padding:10px 14px;">Pending</th>
+                <th style="padding:10px 14px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+        $floorAbbr = fn($f) => match(strtoupper(trim((string)$f))) { 'GROUND' => 'GF', 'FIRST' => 'FF', default => (string)$f };
+        foreach ($dueStudents as $d):
+            $pending = max(0, ((int)$d['months_due'] * (int)$d['fee']) - (int)$d['paid_monthly']);
+        ?>
+        <tr>
+            <td style="padding:9px 14px;">#<?= esc($d['seat_no']) ?> <span class="muted small">(<?= esc($floorAbbr($d['floor'])) ?>)</span></td>
+            <td style="padding:9px 14px;font-weight:600;"><?= esc($d['full_name']) ?></td>
+            <td style="padding:9px 14px;"><?= esc($d['phone'] ?? '—') ?></td>
+            <td style="padding:9px 14px;">&#8377;<?= esc($d['fee']) ?></td>
+            <td style="padding:9px 14px;"><strong style="color:#dc2626;">&#8377;<?= number_format($pending) ?></strong></td>
+            <td style="padding:9px 14px;">
+                <a class="link" href="<?= site_url('/admin/fees/collect?student_id=' . esc($d['student_id'] ?? '')) ?>">Collect</a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php if (count($dueStudents) > 0): ?>
+    <div style="padding:10px 14px;text-align:right;border-top:1px solid #f0f0f0;">
+        <a class="link" href="<?= site_url('/admin/fees/pending') ?>">View Full Pending Report &rarr;</a>
+    </div>
+    <?php endif; ?>
+</section>
+<?php endif; ?>
 
 <!-- ── Communication ── -->
 <div class="db-section-heading">

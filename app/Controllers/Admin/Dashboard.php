@@ -102,6 +102,32 @@ class Dashboard extends BaseController
                 ? (int) $db->table('library_alumni')->countAllResults()
                 : 0;
 
+            // Today's and this month's collection
+            $todayCollection = (int) ($db->query(
+                "SELECT IFNULL(SUM(amount),0) AS t FROM payments WHERE DATE(paid_on) = CURDATE()"
+            )->getRow()->t ?? 0);
+
+            $monthCollection = (int) ($db->query(
+                "SELECT IFNULL(SUM(amount),0) AS t FROM payments
+                 WHERE YEAR(paid_on) = YEAR(CURDATE()) AND MONTH(paid_on) = MONTH(CURDATE())"
+            )->getRow()->t ?? 0);
+
+            // Students with pending fees this month (seat-sorted)
+            $dueStudents = $db->query("
+                SELECT e.id, e.fee, e.start_date,
+                       s.full_name, s.phone, se.seat_no, se.floor,
+                       IFNULL((SELECT SUM(p.amount) FROM payments p
+                               WHERE p.enrollment_id = e.id AND p.type='MONTHLY'), 0) AS paid_monthly,
+                       (PERIOD_DIFF(DATE_FORMAT(NOW(),'%Y%m'),
+                                    DATE_FORMAT(e.start_date,'%Y%m')) + 1) AS months_due
+                FROM enrollments e
+                JOIN students s  ON s.id  = e.student_id
+                JOIN seats se    ON se.id = e.seat_id
+                WHERE e.status = 'ACTIVE'
+                HAVING paid_monthly < (months_due * e.fee)
+                ORDER BY se.seat_no ASC
+            ")->getResultArray();
+
             return view('admin/dashboard', [
                 'totalSeats'      => $totalSeats,
                 'fullDayCount'    => $fullDayCount,
@@ -118,6 +144,9 @@ class Dashboard extends BaseController
                 'activeStudents'  => $activeStudents,
                 'dormantStudents' => $dormantStudents,
                 'alumniCount'     => $alumniCount,
+                'todayCollection' => $todayCollection,
+                'monthCollection' => $monthCollection,
+                'dueStudents'     => $dueStudents,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);
