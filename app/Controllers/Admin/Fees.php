@@ -195,7 +195,7 @@ $pending = max(0, $dueAmount - ($paid + $admissionPaid));
             }
 
             usort($report, static function ($a, $b) {
-                return ($b['pendingAmount'] <=> $a['pendingAmount']);
+                return ((int)($a['enrollment']['seat_no'] ?? 0)) <=> ((int)($b['enrollment']['seat_no'] ?? 0));
             });
 
             return view('admin/fees/pending', [
