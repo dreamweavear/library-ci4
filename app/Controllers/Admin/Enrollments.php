@@ -12,20 +12,7 @@ class Enrollments extends BaseController
         // line added for email functionaliy starts
                     private string $accessToken;
                 private string $phoneNumberId;
-                private array $emailConfig = [
-                    'protocol'   => 'smtp',
-                    'SMTPHost'   => 'mail.aruncomputer.com',
-                    'SMTPUser'   => 'admin@aruncomputer.com',
-                    'SMTPPass'   => 'Rewa@12345678',
-                    'SMTPPort'   => 587,
-                    'SMTPCrypto' => 'tls',
-                    'mailType'   => 'html',
-                    'charset'    => 'utf-8',
-                    'wordWrap'   => true,
-                    'validate'   => true,
-                    'timeout'    => 10,
-                    'newline'    => "\r\n"
-                ];
+                private array $emailConfig = [];
         // end here
     // function added for whatsapp functionality starts 
       /*      private string $accessToken;
@@ -35,6 +22,20 @@ class Enrollments extends BaseController
             {
                 $this->accessToken   = env('WHATSAPP_TOKEN');
                 $this->phoneNumberId = env('WHATSAPP_PHONE_NUMBER_ID');
+                $this->emailConfig   = [
+                    'protocol'   => 'smtp',
+                    'SMTPHost'   => env('SMTP_HOST', 'mail.aruncomputer.com'),
+                    'SMTPUser'   => env('SMTP_USER', 'admin@aruncomputer.com'),
+                    'SMTPPass'   => env('SMTP_PASS', ''),
+                    'SMTPPort'   => (int) env('SMTP_PORT', 587),
+                    'SMTPCrypto' => env('SMTP_CRYPTO', 'tls'),
+                    'mailType'   => 'html',
+                    'charset'    => 'utf-8',
+                    'wordWrap'   => true,
+                    'validate'   => true,
+                    'timeout'    => 10,
+                    'newline'    => "\r\n",
+                ];
             }
        // end here      
     public function index()
