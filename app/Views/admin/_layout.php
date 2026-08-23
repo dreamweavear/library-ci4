@@ -12,8 +12,19 @@
     <link rel="stylesheet" href="<?= base_url('assets/admin.css') ?>">
     <link rel="stylesheet" href="<?= base_url('adminlte.css') ?>">
     <link rel="stylesheet" href="<?= base_url('admin_theme.css') ?>">
+    <style>
+    @media print {
+        .bb-sidebar,
+        .bb-topbar,
+        .alert,
+        .no-print { display: none !important; }
+        .bb-admin  { display: block !important; }
+        .bb-main   { display: block !important; margin: 0 !important; padding: 0 !important; }
+        .bb-content { padding: 0 !important; }
+        body { background: #fff !important; }
+    }
+    </style>
 
- 
 <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32x32.png') ?>">
 <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('favicon-16x16.png') ?>">
 <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('apple-touch-icon.png') ?>">
