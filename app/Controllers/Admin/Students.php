@@ -29,6 +29,8 @@ class Students extends BaseController
                     "students.*,
                     (SELECT seats.seat_no FROM enrollments e JOIN seats ON seats.id = e.seat_id WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_no,
                     (SELECT seats.floor FROM enrollments e JOIN seats ON seats.id = e.seat_id WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_floor,
+                    (SELECT e.plan FROM enrollments e WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_plan,
+                    (SELECT e.half_day_slot FROM enrollments e WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_slot,
                     (SELECT IFNULL(SUM(p.amount), 0) FROM payments p WHERE p.student_id = students.id) AS fees_paid_total"
                 );
 

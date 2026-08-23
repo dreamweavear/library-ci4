@@ -144,6 +144,9 @@ $_printAllUrl = site_url('/admin/students') . '?all=1'
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <?php if (! empty($s['seat_no'])): ?>
                     #<?= esc($s['seat_no']) ?> (<?= esc($floorAbbr($s['seat_floor'] ?? '')) ?>)
+                    <?php if (! empty($s['seat_slot'])): ?>
+                        <span class="muted small"><?= esc($s['seat_slot']) ?></span>
+                    <?php endif; ?>
                 <?php else: ?>
                     <span class="muted">—</span>
                 <?php endif; ?>
