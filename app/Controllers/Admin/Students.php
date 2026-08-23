@@ -22,14 +22,15 @@ class Students extends BaseController
                 $status = '';
             }
 
+            $all = ($this->request->getGet('all') === '1');
+
             $builder = $studentModel
                 ->select(
                     "students.*,
                     (SELECT seats.seat_no FROM enrollments e JOIN seats ON seats.id = e.seat_id WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_no,
                     (SELECT seats.floor FROM enrollments e JOIN seats ON seats.id = e.seat_id WHERE e.student_id = students.id AND e.status = 'ACTIVE' LIMIT 1) AS seat_floor,
                     (SELECT IFNULL(SUM(p.amount), 0) FROM payments p WHERE p.student_id = students.id) AS fees_paid_total"
-                )
-                ->orderBy('id', 'DESC');
+                );
 
             if ($q !== '') {
                 $builder = $builder
@@ -43,7 +44,15 @@ class Students extends BaseController
                 $builder = $builder->where('students.status', $status);
             }
 
-            $students = $builder->paginate(20);
+            if ($all) {
+                // Print mode: sort by seat number ASC, students without seat at end
+                $builder  = $builder->orderBy('seat_no IS NULL', 'ASC', false)->orderBy('seat_no', 'ASC', false);
+                $students = $builder->findAll();
+                $pager    = null;
+            } else {
+                $students = $builder->orderBy('id', 'DESC')->paginate(20);
+                $pager    = $studentModel->pager;
+            }
 
             // Tab counts
             $db = \Config\Database::connect();
@@ -56,10 +65,11 @@ class Students extends BaseController
 
             return view('admin/students/index', [
                 'students' => $students,
-                'pager'    => $studentModel->pager,
+                'pager'    => $pager,
                 'q'        => $q,
                 'status'   => $status,
                 'counts'   => $counts,
+                'printAll' => $all,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);

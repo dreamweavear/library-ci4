@@ -8,17 +8,28 @@
 .table tbody tr:nth-child(even) { background-color: #f8f9fa; }
 .table tbody tr:hover { background-color: #e8f4fd; cursor: default; }
 .table thead th { background: #f1f3f5; }
+@media print {
+    .print-remarks { display:table-cell !important; }
+}
 </style>
 
 <?php $title = 'Students'; ?>
 
+<?php
+$_printAllUrl = site_url('/admin/students') . '?all=1'
+    . ($status !== '' ? '&status=' . esc($status) : '')
+    . ($q !== '' ? '&q=' . urlencode($q) : '');
+?>
 <div class="pagehead">
-    <h1>Students</h1>
+    <h1>Students<?= $printAll ? ' — Full List' : '' ?></h1>
     <div class="actions">
+        <?php if (! $printAll): ?>
         <button class="btn" type="submit" form="bulk-form">Print Selected ID Cards</button>
         <a class="btn" href="<?= site_url('/admin/students/new') ?>">Add Student</a>
-        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn no-print" href="<?= esc($_printAllUrl) ?>" target="_blank"><i class="bi bi-printer-fill"></i> Print All</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print Page</button>
         <a class="btn btn--ghost no-print" href="<?= site_url('/admin/students/export-csv') . (request()->getGet('status') ? '?status=' . esc(request()->getGet('status')) : '') . (request()->getGet('q') ? (request()->getGet('status') ? '&' : '?') . 'q=' . urlencode(request()->getGet('q')) : '') ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -41,7 +52,13 @@
     </div>
 </div>
 
+<?php if ($printAll): ?>
+<p class="muted small no-print" style="margin-bottom:8px;">Showing all <?= count($students) ?> students — <a href="javascript:window.print()">Print / PDF</a> | <a href="javascript:window.close()">Close</a></p>
+<script>window.onload = function(){ window.print(); };</script>
+<?php endif; ?>
+
 <!-- Filter tabs -->
+<?php if (! $printAll): ?>
 <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
     <?php
     $tabs = [
@@ -73,6 +90,7 @@
         <a class="btn btn--ghost" href="<?= site_url('/admin/students') . ($status !== '' ? '?status=' . esc($status) : '') ?>">Clear</a>
     <?php endif; ?>
 </form>
+<?php endif; // ! $printAll — end filter/search section ?>
 
 <form id="bulk-form" method="post" action="<?= site_url('/admin/idcard/bulk') ?>">
     <?= csrf_field() ?>
@@ -81,7 +99,7 @@
     <thead>
         <tr style="background:#f8f9fa;border-bottom:2px solid #dee2e6;">
             <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Sr.No.</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:36px;">
+            <th class="no-print" style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:36px;">
                 <input type="checkbox" id="chk-all" onchange="toggleAll(this)" title="Select all">
             </th>
             <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Name</th>
@@ -90,7 +108,8 @@
             <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Admission</th>
             <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Fees Paid</th>
             <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;">Phone</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:180px;"></th>
+            <th class="no-print" style="padding:10px 12px;text-align:left;font-weight:600;color:#495057;white-space:nowrap;width:180px;"></th>
+            <th class="print-remarks" style="display:none;padding:10px 12px;text-align:left;font-weight:600;color:#495057;">Remarks</th>
         </tr>
     </thead>
     <tbody>
@@ -107,7 +126,7 @@
         ?>
         <tr>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= $sno++ ?></td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><input type="checkbox" name="ids[]" value="<?= esc($s['id']) ?>" class="row-chk"></td>
+            <td class="no-print" style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><input type="checkbox" name="ids[]" value="<?= esc($s['id']) ?>" class="row-chk"></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id']) ?>"><?= esc($s['full_name']) ?></a>
                 <div class="muted small">#<?= esc($s['id']) ?></div>
@@ -127,7 +146,7 @@
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($s['admission_date'] ?? '') ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">₹<?= esc($s['fees_paid_total'] ?? 0) ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($s['phone'] ?? '') ?></td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;white-space:nowrap;">
+            <td class="no-print" style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;white-space:nowrap;">
                 <!-- Edit -->
                 <a class="link" href="<?= site_url('/admin/students/' . $s['id'] . '/edit') ?>" title="Edit">Edit</a>
                 &nbsp;·&nbsp;
@@ -176,6 +195,7 @@
                     </div>
                 </div>
             </td>
+            <td class="print-remarks" style="display:none;padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;min-width:140px;"></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -183,7 +203,7 @@
 
 </form>
 
-<?= $pager->links() ?>
+<?php if ($pager): ?><?= $pager->links() ?><?php endif; ?>
 
 <script>
 function toggleAll(master) {

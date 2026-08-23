@@ -371,8 +371,9 @@ class LibraryAlumni extends BaseController
                     $studentModel->update((int) $alumni['student_id'], [
                         'status' => 'active',
                     ]);
-                    return redirect()->to(site_url('admin/students/' . $alumni['student_id']))
-                        ->with('success', $alumni['full_name'] . ' re-admitted (existing record reactivated).');
+                    // Redirect to seat allotment so operator can allot a seat immediately
+                    return redirect()->to(site_url('admin/enrollments/new?student_id=' . (int) $alumni['student_id']))
+                        ->with('success', $alumni['full_name'] . ' re-admitted. Please allot a seat.');
                 }
             }
 

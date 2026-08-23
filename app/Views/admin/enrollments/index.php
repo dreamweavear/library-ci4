@@ -9,19 +9,28 @@
 
 <?php $title = 'Enrollments'; ?>
 
+<?php $_printAllUrl = site_url('/admin/enrollments') . '?all=1&status=' . esc($status); ?>
 <div class="pagehead">
-    <h1>Enrollments (<?= esc($status) ?>)</h1>
+    <h1>Enrollments (<?= esc($status) ?>)<?= $printAll ? ' — Full List' : '' ?></h1>
     <div class="actions">
+        <?php if (! $printAll): ?>
         <a class="btn" href="<?= site_url('/admin/enrollments/new') ?>">Allot Seat</a>
         <?php if ($status === 'ACTIVE'): ?>
             <a class="btn btn--ghost" href="<?= site_url('/admin/enrollments?status=ENDED') ?>">View Ended</a>
         <?php else: ?>
             <a class="btn btn--ghost" href="<?= site_url('/admin/enrollments?status=ACTIVE') ?>">View Active</a>
         <?php endif; ?>
-        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <a class="btn no-print" href="<?= esc($_printAllUrl) ?>" target="_blank"><i class="bi bi-printer-fill"></i> Print All</a>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print Page</button>
         <a class="btn btn--ghost no-print" href="<?= site_url('/admin/enrollments/export-csv') . '?status=' . esc($status) ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+        <?php endif; ?>
     </div>
 </div>
+
+<?php if ($printAll): ?>
+<p class="muted small no-print" style="margin-bottom:8px;">Showing all <?= count($enrollments) ?> enrollments — <a href="javascript:window.print()">Print / PDF</a> | <a href="javascript:window.close()">Close</a></p>
+<script>window.onload = function(){ window.print(); };</script>
+<?php endif; ?>
 
 <div class="cards">
     <div class="card">
@@ -86,7 +95,7 @@
     </tbody>
 </table>
 
-<?= $pager->links() ?>
+<?php if ($pager): ?><?= $pager->links() ?><?php endif; ?>
 
 <?= $this->endSection() ?>
 

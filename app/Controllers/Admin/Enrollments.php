@@ -50,13 +50,22 @@ class Enrollments extends BaseController
             $status = 'ACTIVE';
         }
 
-        $rows = $enrollmentModel
+        $all = ($this->request->getGet('all') === '1');
+
+        $builder = $enrollmentModel
             ->select('enrollments.*, students.full_name, students.phone, seats.seat_no, seats.floor')
             ->join('students', 'students.id = enrollments.student_id')
             ->join('seats', 'seats.id = enrollments.seat_id')
             ->where('enrollments.status', $status)
-            ->orderBy('enrollments.id', 'DESC')
-            ->paginate(25);
+            ->orderBy('enrollments.id', 'DESC');
+
+        if ($all) {
+            $rows  = $builder->findAll();
+            $pager = null;
+        } else {
+            $rows  = $builder->paginate(25);
+            $pager = $enrollmentModel->pager;
+        }
 
         $library = config('Library');
 
@@ -68,10 +77,11 @@ class Enrollments extends BaseController
 
             return view('admin/enrollments/index', [
                 'enrollments' => $rows,
-                'pager'       => $enrollmentModel->pager,
+                'pager'       => $pager,
                 'status'      => $status,
                 'library'     => $library,
                 'enrollStats' => $enrollStats,
+                'printAll'    => $all,
             ]);
         } catch (\Throwable $e) {
             return view('admin/setup', ['error' => $e->getMessage()]);
