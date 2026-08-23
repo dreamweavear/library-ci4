@@ -143,7 +143,7 @@ class Fees extends BaseController
                 ->join('students', 'students.id = enrollments.student_id')
                 ->join('seats', 'seats.id = enrollments.seat_id')
                 ->where('enrollments.status', 'ACTIVE')
-                ->orderBy('enrollments.id', 'DESC')
+                ->orderBy('seats.seat_no', 'ASC')
                 ->findAll();
 
             $currentMonth = date('Y-m');
