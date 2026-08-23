@@ -56,13 +56,13 @@ class Enrollments extends BaseController
             ->select('enrollments.*, students.full_name, students.phone, seats.seat_no, seats.floor')
             ->join('students', 'students.id = enrollments.student_id')
             ->join('seats', 'seats.id = enrollments.seat_id')
-            ->where('enrollments.status', $status)
-            ->orderBy('enrollments.id', 'DESC');
+            ->where('enrollments.status', $status);
 
         if ($all) {
-            $rows  = $builder->findAll();
+            // Print mode: sort by seat number ascending
+            $rows = $builder->orderBy('seats.seat_no', 'ASC')->findAll();
         } else {
-            $rows  = $builder->findAll();
+            $rows = $builder->orderBy('enrollments.id', 'DESC')->findAll();
         }
         $pager = null;
 
