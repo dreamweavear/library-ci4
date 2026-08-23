@@ -72,8 +72,8 @@
         <nav class="bb-menu">
             <a class="bb-menu__item <?= esc($isActiveExact('admin')) ?>" href="<?= site_url('/admin') ?>"><i class="bi bi-speedometer2"></i>Dashboard</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/seats')) ?>" href="<?= site_url('/admin/seats') ?>"><i class="bi bi-grid-3x3-gap-fill"></i>Seats</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/enrollments')) ?>" href="<?= site_url('/admin/enrollments') ?>"><i class="bi bi-person-workspace"></i>Seat Allotment</a>
-            <a class="bb-menu__item <?= esc($isActivePrefix('admin/students')) ?>" href="<?= site_url('/admin/students') ?>"><i class="bi bi-person-plus-fill"></i>Admissions</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/enrollments')) ?>" href="<?= site_url('/admin/enrollments') ?>"><i class="bi bi-person-workspace"></i>Active Enrollment</a>
+            <a class="bb-menu__item <?= esc($isActivePrefix('admin/students')) ?>" href="<?= site_url('/admin/students') ?>"><i class="bi bi-person-plus-fill"></i>Student-List</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/alumni')) ?>" href="<?= site_url('/admin/alumni') ?>"><i class="bi bi-mortarboard-fill"></i>Alumni</a>
             <a class="bb-menu__item <?= esc($isActiveExact('admin/fees')) ?>" href="<?= site_url('/admin/fees') ?>"><i class="bi bi-cash-stack"></i>Fees Collection</a>
             <a class="bb-menu__item <?= esc($isActivePrefix('admin/fees/report')) ?>" href="<?= site_url('/admin/fees/report') ?>"><i class="bi bi-bar-chart-line-fill"></i>Collection Report</a>

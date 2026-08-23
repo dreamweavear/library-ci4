@@ -13,7 +13,12 @@
 }
 </style>
 
-<?php $title = 'Students'; ?>
+<?php
+$title = 'Students';
+$floorAbbr = fn($f) => match(strtoupper(trim((string)$f))) {
+    'GROUND' => 'GF', 'FIRST' => 'FF', default => (string)$f
+};
+?>
 
 <?php
 $_printAllUrl = site_url('/admin/students') . '?all=1'
@@ -138,7 +143,7 @@ $_printAllUrl = site_url('/admin/students') . '?all=1'
             </td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
                 <?php if (! empty($s['seat_no'])): ?>
-                    #<?= esc($s['seat_no']) ?> (<?= esc($s['seat_floor'] ?? '') ?>)
+                    #<?= esc($s['seat_no']) ?> (<?= esc($floorAbbr($s['seat_floor'] ?? '')) ?>)
                 <?php else: ?>
                     <span class="muted">—</span>
                 <?php endif; ?>

@@ -7,7 +7,19 @@
 .table thead th { background: #f1f3f5; }
 </style>
 
-<?php $title = 'Enrollments'; ?>
+<?php
+$title = 'Enrollments';
+$floorAbbr = fn($f) => match(strtoupper(trim((string)$f))) {
+    'GROUND' => 'GF', 'FIRST' => 'FF', default => (string)$f
+};
+$planSlotFmt = function($plan, $slot = null) {
+    $p = strtoupper(trim((string)$plan));
+    $s = strtoupper(trim((string)$slot));
+    if ($p === 'FULL_DAY') return 'F_Day';
+    if ($p === 'HALF_DAY') return ($s !== '' ? $s : 'H_Day');
+    return (string)$plan;
+};
+?>
 
 <?php $_printAllUrl = site_url('/admin/enrollments') . '?all=1&status=' . esc($status); ?>
 <div class="pagehead">
@@ -72,13 +84,8 @@
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><a class="link" href="<?= site_url('/admin/students/' . $e['student_id']) ?>"><?= esc($e['full_name']) ?></a></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['phone'] ?? '') ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['seat_no']) ?></td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['floor']) ?></td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;">
-                <?= esc($e['plan']) ?>
-                <?php if (! empty($e['half_day_slot'])): ?>
-                    (<?= esc($e['half_day_slot']) ?>)
-                <?php endif; ?>
-            </td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($floorAbbr($e['floor'])) ?></td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($planSlotFmt($e['plan'], $e['half_day_slot'] ?? '')) ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['fee']) ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['start_date']) ?></td>
             <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;"><?= esc($e['end_date'] ?? '') ?></td>

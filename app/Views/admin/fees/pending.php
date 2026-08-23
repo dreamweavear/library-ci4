@@ -1,11 +1,24 @@
 <?= $this->extend('admin/_layout') ?>
 <?= $this->section('content') ?>
 
+<?php
+$floorAbbr = fn($f) => match(strtoupper(trim((string)$f))) {
+    'GROUND' => 'GF', 'FIRST' => 'FF', default => (string)$f
+};
+$planSlotFmt = function($plan, $slot = null) {
+    $p = strtoupper(trim((string)$plan));
+    $s = strtoupper(trim((string)$slot));
+    if ($p === 'FULL_DAY') return 'F_Day';
+    if ($p === 'HALF_DAY') return ($s !== '' ? $s : 'H_Day');
+    return (string)$plan;
+};
+?>
+
 <div class="pagehead">
     <h1>Fees Pending Report</h1>
     <div class="actions">
         <a class="btn" href="<?= site_url('/admin/fees/collect') ?>">Collect Fee</a>
-        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print / PDF</button>
+        <button class="btn no-print" onclick="window.print()"><i class="bi bi-printer-fill"></i> Print All</button>
         <a class="btn btn--ghost no-print" href="<?= site_url('/admin/fees/pending/export-csv') ?>"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
         <a class="btn btn--ghost" href="<?= site_url('/admin/fees') ?>">Back</a>
     </div>
@@ -39,8 +52,8 @@
             <?php $e = $r['enrollment']; ?>
             <tr>
                 <td><?= esc($e['full_name']) ?><?= ! empty($e['phone']) ? ' (' . esc($e['phone']) . ')' : '' ?></td>
-                <td>#<?= esc($e['seat_no']) ?> (<?= esc($e['floor']) ?>)</td>
-                <td><?= esc($e['plan']) ?><?= ! empty($e['half_day_slot']) ? ' (' . esc($e['half_day_slot']) . ')' : '' ?></td>
+                <td>#<?= esc($e['seat_no']) ?> (<?= esc($floorAbbr($e['floor'])) ?>)</td>
+                <td><?= esc($planSlotFmt($e['plan'], $e['half_day_slot'] ?? '')) ?></td>
                 <td><?= esc($r['fromMonth']) ?></td>
                 <td><?= esc($r['toMonth']) ?></td>
                 <td>₹<?= esc($r['monthlyFee']) ?></td>

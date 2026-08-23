@@ -169,7 +169,7 @@ $pendingFees   = max(0, $totalExpected - $totalPaid);
 
     <a href="<?= site_url('/admin/enrollments/new') ?>" class="db-action bg-orange">
         <i class="bi bi-grid-3x3-gap-fill db-action__icon"></i>
-        <div class="db-action__title">Seat Allotment</div>
+        <div class="db-action__title"> Allot Seat </div>
         <div class="db-action__sub">Assign seat + plan</div>
     </a>
 

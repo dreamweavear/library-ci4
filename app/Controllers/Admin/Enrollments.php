@@ -61,11 +61,10 @@ class Enrollments extends BaseController
 
         if ($all) {
             $rows  = $builder->findAll();
-            $pager = null;
         } else {
-            $rows  = $builder->paginate(25);
-            $pager = $enrollmentModel->pager;
+            $rows  = $builder->findAll();
         }
+        $pager = null;
 
         $library = config('Library');
 

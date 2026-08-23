@@ -50,8 +50,8 @@ class Students extends BaseController
                 $students = $builder->findAll();
                 $pager    = null;
             } else {
-                $students = $builder->orderBy('id', 'DESC')->paginate(20);
-                $pager    = $studentModel->pager;
+                $students = $builder->orderBy('id', 'DESC')->findAll();
+                $pager    = null;
             }
 
             // Tab counts
