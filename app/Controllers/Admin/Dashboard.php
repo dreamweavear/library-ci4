@@ -18,79 +18,54 @@ class Dashboard extends BaseController
             $totalSeats = count($seats);
 
             $active = $enrollmentModel
+                ->occupying()
                 ->select('seat_id, plan, half_day_slot')
-                ->where('status', 'ACTIVE')
                 ->findAll();
-
-        $anyOccupiedSeatIds = [];
-        $fullDaySeatIds = [];
-        $amSeatIds = [];
-        $pmSeatIds = [];
 
         $fullDayCount = 0;
         $amCount = 0;
         $pmCount = 0;
 
         foreach ($active as $e) {
-            $seatId = (int) $e['seat_id'];
-            $anyOccupiedSeatIds[$seatId] = true;
-
-            if (($e['plan'] ?? '') === 'FULL_DAY') {
-                $fullDaySeatIds[$seatId] = true;
+            $batch = EnrollmentModel::planToBatch($e['plan'] ?? null, $e['half_day_slot'] ?? null);
+            if ($batch === 'FULL') {
                 $fullDayCount++;
-                continue;
-            }
-
-            if (($e['plan'] ?? '') === 'HALF_DAY') {
-                $slot = strtoupper((string) ($e['half_day_slot'] ?? ''));
-                if ($slot === 'AM') {
-                    $amSeatIds[$seatId] = true;
-                    $amCount++;
-                } elseif ($slot === 'PM') {
-                    $pmSeatIds[$seatId] = true;
-                    $pmCount++;
-                }
+            } elseif ($batch === 'AM') {
+                $amCount++;
+            } else {
+                $pmCount++;
             }
         }
 
-        // Availability rules:
-        // - Full day needs a completely free seat (no active enrollment).
-        // - AM needs seat not used by FULL_DAY and not used by HALF_DAY (AM).
-        // - PM needs seat not used by FULL_DAY and not used by HALF_DAY (PM).
-        $availableForFullDay = max(0, $totalSeats - count($anyOccupiedSeatIds));
-        $availableForAm = max(0, $totalSeats - count($fullDaySeatIds + $amSeatIds));
-        $availableForPm = max(0, $totalSeats - count($fullDaySeatIds + $pmSeatIds));
+        // Free-seat counts come from the same model method the Allot Seat
+        // dropdown uses, so the numbers always match.
+        $normFloor = static function ($floor): string {
+            $floor = strtoupper((string) ($floor ?? 'GROUND'));
+            return $floor === 'FIRST' ? 'FIRST' : 'GROUND';
+        };
 
-        $floors = ['GROUND', 'FIRST'];
         $totalByFloor = ['GROUND' => 0, 'FIRST' => 0];
-        $availableFullByFloor = ['GROUND' => 0, 'FIRST' => 0];
-        $availableAmByFloor = ['GROUND' => 0, 'FIRST' => 0];
-        $availablePmByFloor = ['GROUND' => 0, 'FIRST' => 0];
-
         foreach ($seats as $s) {
-            $floor = strtoupper((string) ($s['floor'] ?? 'GROUND'));
-            if (! in_array($floor, $floors, true)) {
-                $floor = 'GROUND';
-            }
+            $totalByFloor[$normFloor($s['floor'] ?? null)]++;
+        }
 
-            $totalByFloor[$floor]++;
-
-            $seatId = (int) $s['id'];
-            $isAny = isset($anyOccupiedSeatIds[$seatId]);
-            $isFull = isset($fullDaySeatIds[$seatId]);
-            $isAm = isset($amSeatIds[$seatId]);
-            $isPm = isset($pmSeatIds[$seatId]);
-
-            if (! $isAny) {
-                $availableFullByFloor[$floor]++;
-            }
-            if (! $isFull && ! $isAm) {
-                $availableAmByFloor[$floor]++;
-            }
-            if (! $isFull && ! $isPm) {
-                $availablePmByFloor[$floor]++;
+        $availableByBatch = [];
+        $availableByFloor = [];
+        foreach (['FULL', 'AM', 'PM'] as $batch) {
+            $free = $enrollmentModel->getAvailableSeats($batch);
+            $availableByBatch[$batch] = count($free);
+            $availableByFloor[$batch] = ['GROUND' => 0, 'FIRST' => 0];
+            foreach ($free as $s) {
+                $availableByFloor[$batch][$normFloor($s['floor'] ?? null)]++;
             }
         }
+
+        $availableForFullDay  = $availableByBatch['FULL'];
+        $availableForAm       = $availableByBatch['AM'];
+        $availableForPm       = $availableByBatch['PM'];
+        $availableFullByFloor = $availableByFloor['FULL'];
+        $availableAmByFloor   = $availableByFloor['AM'];
+        $availablePmByFloor   = $availableByFloor['PM'];
 
             $library = config('Library');
 

@@ -127,29 +127,22 @@ class Enrollments extends BaseController
     {
         try {
             $studentModel = new StudentModel();
-            $seatModel = new SeatModel();
 
         $students = $studentModel->orderBy('full_name', 'ASC')->findAll();
 
-        // Only show seats that have no active enrollment
-        $db = \Config\Database::connect();
-        $occupiedSeatIds = $db->table('enrollments')
-            ->select('seat_id')
-            ->where('status', 'ACTIVE')
-            ->get()->getResultArray();
-        $occupiedIds = array_column($occupiedSeatIds, 'seat_id');
-
-        $seatBuilder = $seatModel->orderBy('seat_no', 'ASC');
-        if (! empty($occupiedIds)) {
-            $seatBuilder = $seatBuilder->whereNotIn('id', $occupiedIds);
-        }
-        $seats = $seatBuilder->findAll();
+        // Seats are loaded per batch via AJAX (availableSeats). If the form is
+        // re-shown after a validation error, pre-render the list for the old batch.
+        $oldBatch = strtoupper((string) old('batch'));
+        $seats = EnrollmentModel::batchToPlan($oldBatch) !== null
+            ? (new EnrollmentModel())->getAvailableSeats($oldBatch)
+            : [];
 
         $library = config('Library');
 
             return view('admin/enrollments/form', [
                 'students'             => $students,
                 'seats'                => $seats,
+                'oldBatch'             => $oldBatch,
                 'library'              => $library,
                 'preselectedStudentId' => (int) $this->request->getGet('student_id'),
                 'errors'               => session()->getFlashdata('errors') ?? [],
@@ -159,16 +152,37 @@ class Enrollments extends BaseController
         }
     }
 
+    /**
+     * GET admin/enrollments/available-seats?batch=AM|PM|FULL[&exclude=enrollmentId]
+     * JSON list of seats that can be allotted for the batch.
+     */
+    public function availableSeats()
+    {
+        $batch   = strtoupper(trim((string) $this->request->getGet('batch')));
+        $exclude = (int) $this->request->getGet('exclude');
+
+        if (EnrollmentModel::batchToPlan($batch) === null) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Invalid batch.']);
+        }
+
+        $seats = (new EnrollmentModel())->getAvailableSeats($batch, $exclude > 0 ? $exclude : null);
+
+        return $this->response->setJSON(array_map(static fn ($s) => [
+            'id'    => (int) $s['id'],
+            'label' => $s['label'],
+        ], $seats));
+    }
+
     public function create()
     {
+        $db = \Config\Database::connect();
         try {
         $library = config('Library');
 
         $rules = [
             'student_id'    => 'required|is_natural_no_zero',
+            'batch'         => 'required|in_list[AM,PM,FULL]',
             'seat_id'       => 'required|is_natural_no_zero',
-            'plan'          => 'required|in_list[' . implode(',', $library->plans) . ']',
-            'half_day_slot' => 'permit_empty|in_list[' . implode(',', $library->halfDaySlots) . ']',
             'start_date'    => 'required|valid_date[Y-m-d]',
         ];
 
@@ -178,16 +192,12 @@ class Enrollments extends BaseController
 
         $studentId = (int) $this->request->getPost('student_id');
         $seatId = (int) $this->request->getPost('seat_id');
-        $plan = strtoupper(trim((string) $this->request->getPost('plan')));
-        $halfDaySlot = strtoupper(trim((string) $this->request->getPost('half_day_slot')));
+        $batch = strtoupper(trim((string) $this->request->getPost('batch')));
         $startDate = (string) $this->request->getPost('start_date');
 
-        if ($plan === 'HALF_DAY' && $halfDaySlot === '') {
-            return redirect()->back()->withInput()->with('errors', ['half_day_slot' => 'Half-day slot is required for Half Day plan.']);
-        }
-        if ($plan === 'FULL_DAY') {
-            $halfDaySlot = null;
-        }
+        $planSlot = EnrollmentModel::batchToPlan($batch);
+        $plan = $planSlot['plan'];
+        $halfDaySlot = $planSlot['half_day_slot'];
 
         $studentModel = new StudentModel();
         $seatModel = new SeatModel();
@@ -207,23 +217,30 @@ class Enrollments extends BaseController
             return redirect()->back()->withInput()->with('errors', ['seat_id' => 'Seat number must be between 1 and 100.']);
         }
 
-        if ($enrollmentModel->getSeatConflict($seatId, $plan, $halfDaySlot)) {
-            if ($plan === 'FULL_DAY') {
-                return redirect()->back()->withInput()->with('errors', ['seat_id' => 'This seat already has an active enrollment (Full/Half day).']);
-            }
-            return redirect()->back()->withInput()->with('errors', ['seat_id' => 'This seat is already occupied for the selected half-day slot, or is occupied for Full Day.']);
-        }
-
-        if ($enrollmentModel->getActiveByStudentId($studentId)) {
-            return redirect()->back()->withInput()->with('errors', ['student_id' => 'This student already has an active seat. End the current enrollment first.']);
-        }
-
         $fee = 0;
         if ($plan === 'FULL_DAY') {
             $floor = strtoupper((string) $seat['floor']);
             $fee = (int) ($library->fees['FULL_DAY'][$floor] ?? 0);
         } else {
             $fee = (int) $library->fees['HALF_DAY'];
+        }
+
+        // Re-check availability inside a transaction with the seat row locked,
+        // so two simultaneous requests cannot double-book the same seat + batch.
+        $db->transBegin();
+
+        $db->query('SELECT id FROM seats WHERE id = ? FOR UPDATE', [$seatId]);
+
+        if (! $enrollmentModel->isSeatAvailable($seatId, $batch)) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('errors', [
+                'seat_id' => 'Seat #' . $seat['seat_no'] . ' is already booked for the ' . $batch . ' batch. Please choose another seat.',
+            ]);
+        }
+
+        if ($enrollmentModel->getActiveByStudentId($studentId)) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('errors', ['student_id' => 'This student already has an active seat. End the current enrollment first.']);
         }
 
         $id = $enrollmentModel->insert([
@@ -236,6 +253,8 @@ class Enrollments extends BaseController
             'end_date'      => null,
             'status'        => 'ACTIVE',
         ]);
+
+        $db->transCommit();
 
     // line below is add for whatsapp functionalaiye starts
     // WhatsApp message bhejo
@@ -260,6 +279,9 @@ if (!empty($student['email'])) {
 
         return redirect()->to(site_url('admin/enrollments'))->with('success', 'Seat allotted (Enrollment #' . $id . ').');
     } catch (\Throwable $e) {
+        if ($db->transDepth > 0) {
+            $db->transRollback();
+        }
         return redirect()->back()->withInput()->with('error', $e->getMessage());
     }
 }
@@ -292,20 +314,12 @@ if (!empty($student['email'])) {
                     ->with('error', 'This student has no active seat. Use "Allot Seat" first.');
             }
 
-            // Build list of seats available for the same plan/slot (excluding current seat)
-            $allSeats     = $seatModel->orderBy('seat_no', 'ASC')->findAll();
-            $plan         = $current['plan'];
-            $halfDaySlot  = $current['half_day_slot'] ?? null;
-            $availableSeats = [];
-
-            foreach ($allSeats as $seat) {
-                if ((int) $seat['id'] === (int) $current['seat_id']) {
-                    continue; // skip current seat
-                }
-                if (! $enrollmentModel->getSeatConflict((int) $seat['id'], $plan, $halfDaySlot)) {
-                    $availableSeats[] = $seat;
-                }
-            }
+            // Seats available for the same batch (excluding current seat)
+            $batch = EnrollmentModel::planToBatch($current['plan'], $current['half_day_slot'] ?? null);
+            $availableSeats = array_values(array_filter(
+                $enrollmentModel->getAvailableSeats($batch, (int) $current['id']),
+                static fn ($seat) => (int) $seat['id'] !== (int) $current['seat_id']
+            ));
 
             return view('admin/enrollments/change_seat', [
                 'student'        => $student,
@@ -361,19 +375,22 @@ if (!empty($student['email'])) {
                 return redirect()->back()->withInput()->with('errors', ['new_seat_id' => 'Selected seat not found.']);
             }
 
-            // Check seat availability for the same plan
             $plan        = $current['plan'];
             $halfDaySlot = $current['half_day_slot'] ?? null;
+            $batch       = EnrollmentModel::planToBatch($plan, $halfDaySlot);
 
-            if ($enrollmentModel->getSeatConflict($newSeatId, $plan, $halfDaySlot)) {
-                return redirect()->back()->withInput()->with('errors', ['new_seat_id' => 'Selected seat is no longer available. Please choose another.']);
-            }
-
-            // Transaction: end current → create new
+            // Transaction: lock seat → re-check availability → end current → create new
             $db = \Config\Database::connect();
             $db->transBegin();
 
             try {
+                $db->query('SELECT id FROM seats WHERE id = ? FOR UPDATE', [$newSeatId]);
+
+                if (! $enrollmentModel->isSeatAvailable($newSeatId, $batch, (int) $current['id'])) {
+                    $db->transRollback();
+                    return redirect()->back()->withInput()->with('errors', ['new_seat_id' => 'Seat #' . $newSeat['seat_no'] . ' is already booked for the ' . $batch . ' batch. Please choose another.']);
+                }
+
                 $enrollmentModel->update((int) $current['id'], [
                     'status'   => 'ENDED',
                     'end_date' => $changeDate,

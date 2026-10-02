@@ -67,6 +67,7 @@ $routes->group('admin', ['filter' => 'adminauth'], static function ($routes) {
     $routes->get('enrollments', 'Admin\Enrollments::index');
     $routes->get('enrollments/export-csv', 'Admin\Enrollments::exportCsv');
     $routes->get('enrollments/new', 'Admin\Enrollments::new');
+    $routes->get('enrollments/available-seats', 'Admin\Enrollments::availableSeats');
     $routes->post('enrollments', 'Admin\Enrollments::create');
     $routes->post('enrollments/(:num)/end', 'Admin\Enrollments::end/$1');
     $routes->get('enrollments/change-seat/(:num)', 'Admin\Enrollments::changeSeatForm/$1');

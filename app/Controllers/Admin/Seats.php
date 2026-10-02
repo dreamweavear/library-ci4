@@ -17,9 +17,9 @@ class Seats extends BaseController
             $seats = $seatModel->orderBy('seat_no', 'ASC')->findAll();
 
             $activeEnrollments = $enrollmentModel
+                ->occupying()
                 ->select('enrollments.*, students.full_name AS student_name')
                 ->join('students', 'students.id = enrollments.student_id')
-                ->where('enrollments.status', 'ACTIVE')
                 ->findAll();
 
         // seat_id => ['FULL_DAY' => row, 'AM' => row, 'PM' => row]
@@ -42,9 +42,18 @@ class Seats extends BaseController
 
             $library = config('Library');
 
+            // Fully booked = FULL_DAY, or both AM + PM. Half booked = only AM or only PM.
             $totalSeats    = count($seats);
-            $occupiedCount = count($seatAssignments);
-            $availableCount = $totalSeats - $occupiedCount;
+            $occupiedCount = 0;
+            $halfCount     = 0;
+            foreach ($seatAssignments as $a) {
+                if (isset($a['FULL_DAY']) || (isset($a['AM']) && isset($a['PM']))) {
+                    $occupiedCount++;
+                } elseif (isset($a['AM']) || isset($a['PM'])) {
+                    $halfCount++;
+                }
+            }
+            $availableCount = $totalSeats - $occupiedCount - $halfCount;
 
             return view('admin/seats/index', [
                 'seats'          => $seats,
@@ -52,6 +61,7 @@ class Seats extends BaseController
                 'library'        => $library,
                 'totalSeats'     => $totalSeats,
                 'occupiedCount'  => $occupiedCount,
+                'halfCount'      => $halfCount,
                 'availableCount' => $availableCount,
             ]);
         } catch (\Throwable $e) {

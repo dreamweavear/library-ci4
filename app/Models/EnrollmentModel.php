@@ -28,36 +28,115 @@ class EnrollmentModel extends Model
     }
 
     /**
-     * Returns a conflicting active enrollment for a seat, if any.
-     *
-     * Rules:
-     * - FULL_DAY conflicts with any ACTIVE enrollment on the seat.
-     * - HALF_DAY (AM) conflicts with ACTIVE FULL_DAY or ACTIVE HALF_DAY (AM).
-     * - HALF_DAY (PM) conflicts with ACTIVE FULL_DAY or ACTIVE HALF_DAY (PM).
+     * Batch (AM / PM / FULL) => stored plan + half_day_slot.
      */
-    public function getSeatConflict(int $seatId, string $plan, ?string $halfDaySlot): ?array
+    public static function batchToPlan(string $batch): ?array
     {
-        $plan = strtoupper($plan);
-        $halfDaySlot = $halfDaySlot !== null ? strtoupper($halfDaySlot) : null;
+        return match (strtoupper(trim($batch))) {
+            'FULL'  => ['plan' => 'FULL_DAY', 'half_day_slot' => null],
+            'AM'    => ['plan' => 'HALF_DAY', 'half_day_slot' => 'AM'],
+            'PM'    => ['plan' => 'HALF_DAY', 'half_day_slot' => 'PM'],
+            default => null,
+        };
+    }
 
-        $qb = $this->where('seat_id', $seatId)->where('status', 'ACTIVE');
+    /**
+     * Stored plan + half_day_slot => batch (AM / PM / FULL).
+     */
+    public static function planToBatch(?string $plan, ?string $halfDaySlot): string
+    {
+        if (strtoupper((string) $plan) === 'HALF_DAY') {
+            return strtoupper((string) $halfDaySlot) === 'PM' ? 'PM' : 'AM';
+        }
+        return 'FULL';
+    }
 
-        if ($plan === 'FULL_DAY') {
-            $row = $qb->first();
-            return $row ?: null;
+    /**
+     * Limit the query to enrollments that currently occupy a seat:
+     * ACTIVE and not past their end_date. Chainable.
+     */
+    public function occupying()
+    {
+        return $this->where('enrollments.status', 'ACTIVE')
+            ->groupStart()
+                ->where('enrollments.end_date', null)
+                ->orWhere('enrollments.end_date >=', date('Y-m-d'))
+            ->groupEnd();
+    }
+
+    /**
+     * Seats that can be allotted for a batch (single source of truth).
+     *
+     * Only ACTIVE enrollments occupy a seat.
+     * - AM / PM blocked if the seat has an active enrollment in the same slot OR FULL.
+     * - FULL blocked if the seat has ANY active enrollment.
+     *
+     * Each returned seat has extra keys: am_booked, pm_booked, full_booked (bool), label.
+     *
+     * @param int|null $excludeEnrollmentId Enrollment to ignore (e.g. the one being moved).
+     */
+    public function getAvailableSeats(string $batch, ?int $excludeEnrollmentId = null): array
+    {
+        $batch = strtoupper(trim($batch));
+        if (self::batchToPlan($batch) === null) {
+            return [];
         }
 
-        // HALF_DAY: conflict only if FULL_DAY exists, or the same slot exists.
-        $qb = $qb->groupStart()
-            ->where('plan', 'FULL_DAY')
-            ->orGroupStart()
-                ->where('plan', 'HALF_DAY')
-                ->where('half_day_slot', $halfDaySlot)
-            ->groupEnd()
-        ->groupEnd();
+        $qb = $this->occupying()->select('seat_id, plan, half_day_slot');
+        if ($excludeEnrollmentId !== null && $excludeEnrollmentId > 0) {
+            $qb->where('enrollments.id !=', $excludeEnrollmentId);
+        }
 
-        $row = $qb->first();
-        return $row ?: null;
+        // seat_id => ['AM' => bool, 'PM' => bool, 'FULL' => bool]
+        $booked = [];
+        foreach ($qb->findAll() as $e) {
+            $booked[(int) $e['seat_id']][self::planToBatch($e['plan'], $e['half_day_slot'])] = true;
+        }
+
+        $seats = $this->db->table('seats')->orderBy('seat_no', 'ASC')->get()->getResultArray();
+
+        $available = [];
+        foreach ($seats as $seat) {
+            $b    = $booked[(int) $seat['id']] ?? [];
+            $full = ! empty($b['FULL']);
+            $am   = $full || ! empty($b['AM']);
+            $pm   = $full || ! empty($b['PM']);
+
+            $ok = match ($batch) {
+                'AM'   => ! $am,
+                'PM'   => ! $pm,
+                'FULL' => ! $am && ! $pm,
+            };
+            if (! $ok) {
+                continue;
+            }
+
+            if (! $am && ! $pm) {
+                $state = 'fully free';
+            } elseif ($am) {
+                $state = 'PM free (AM booked)';
+            } else {
+                $state = 'AM free (PM booked)';
+            }
+
+            $seat['am_booked']   = $am;
+            $seat['pm_booked']   = $pm;
+            $seat['full_booked'] = $full;
+            $seat['label']       = '#' . $seat['seat_no'] . ' (' . $seat['floor'] . ') — ' . $state;
+            $available[]         = $seat;
+        }
+
+        return $available;
+    }
+
+    public function isSeatAvailable(int $seatId, string $batch, ?int $excludeEnrollmentId = null): bool
+    {
+        foreach ($this->getAvailableSeats($batch, $excludeEnrollmentId) as $seat) {
+            if ((int) $seat['id'] === $seatId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getActiveByStudentId(int $studentId): ?array

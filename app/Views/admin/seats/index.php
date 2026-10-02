@@ -13,14 +13,33 @@
     background: #FFE4E4 !important;
     border: 2px solid #ef4444 !important;
 }
+div.seat.seat--half {
+    background: #FEF9C3 !important;
+    border: 2px solid #eab308 !important;
+}
 .seat.seat--free .seat__no,
 .seat.seat--free .small,
 .seat.seat--free .muted,
 .seat.seat--occupied .seat__no,
 .seat.seat--occupied .small,
-.seat.seat--occupied .muted {
+.seat.seat--occupied .muted,
+.seat.seat--half .seat__no,
+.seat.seat--half .small,
+.seat.seat--half .muted {
     color: #1e293b !important;
 }
+.seat__tag {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #eab308;
+    color: #1e293b;
+    font-size: .7rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+.pill--half { border-color: rgba(234,179,8,.45); }
 </style>
 
 <div class="pagehead">
@@ -40,6 +59,10 @@
         <div class="card__value" style="color:#ef4444"><?= $occupiedCount ?></div>
     </div>
     <div class="card">
+        <div class="card__label">Half Booked (AM / PM only)</div>
+        <div class="card__value" style="color:#ca8a04"><?= $halfCount ?></div>
+    </div>
+    <div class="card">
         <div class="card__label">Available</div>
         <div class="card__value" style="color:#16a34a"><?= $availableCount ?></div>
     </div>
@@ -48,6 +71,7 @@
 <div class="legend">
     <span class="pill pill--free">Free</span>
     <span class="pill pill--occupied">Occupied</span>
+    <span class="pill pill--half">Half booked</span>
     <span class="pill pill--ground">Ground</span>
     <span class="pill pill--first">First</span>
 </div>
@@ -59,14 +83,21 @@
             $floorClass = $floor === 'FIRST' ? 'seat--first' : 'seat--ground';
             $seatId = (int) $s['id'];
             $assign = $seatAssignments[$seatId] ?? [];
-            $hasAny = ! empty($assign);
-            $statusClass = $hasAny ? 'seat--occupied' : 'seat--free';
             $full = $assign['FULL_DAY'] ?? null;
             $am = $assign['AM'] ?? null;
             $pm = $assign['PM'] ?? null;
+            $halfTag = '';
+            if ($full || ($am && $pm)) {
+                $statusClass = 'seat--occupied';
+            } elseif ($am || $pm) {
+                $statusClass = 'seat--half';
+                $halfTag = $am ? 'AM' : 'PM';
+            } else {
+                $statusClass = 'seat--free';
+            }
         ?>
         <div class="seat <?= esc($floorClass) ?> <?= esc($statusClass) ?>">
-            <div class="seat__no">#<?= esc($s['seat_no']) ?></div>
+            <div class="seat__no">#<?= esc($s['seat_no']) ?><?php if ($halfTag !== ''): ?><span class="seat__tag" title="<?= esc($halfTag) ?> booked"><?= esc($halfTag) ?></span><?php endif; ?></div>
             <div class="seat__meta">
                 <div class="muted small"><?= esc($floor) ?></div>
 

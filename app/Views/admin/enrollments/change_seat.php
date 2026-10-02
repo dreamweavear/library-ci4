@@ -61,7 +61,7 @@
                 <?php foreach ($availableSeats as $seat): ?>
                     <option value="<?= esc($seat['id']) ?>"
                         <?= (int) old('new_seat_id') === (int) $seat['id'] ? 'selected' : '' ?>>
-                        Seat #<?= esc($seat['seat_no']) ?> — <?= esc(ucfirst(strtolower($seat['floor']))) ?> Floor
+                        <?= esc($seat['label']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
